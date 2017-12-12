@@ -1,7 +1,8 @@
+# coding: utf-8
 from PyQt5 import QtWidgets, QtGui
 import sys
 
-from login import Ui_Login
+from .login import Ui_Login
 
 
 class mywindow(QtWidgets.QWidget, Ui_Login):
