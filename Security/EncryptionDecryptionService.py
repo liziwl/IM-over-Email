@@ -4,7 +4,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 from cryptography.hazmat.backends import default_backend
 import base64
 
-
 class EncryptionDecryptionServiceInterface:
     # encrypt an e-mail using chacah20
     # input: content of the mail RSA public key (rsa public key object)
@@ -83,9 +82,19 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
 if __name__ == '__main__':
     # test
     (pubkey, privkey) = rsa.newkeys(512)
-    data = "The Witcher 3: Wild Hunt[a] is a 2015 action role-playing video game developed and published by CD Projekt. "
+    data = '''The Witcher 3: Wild Hunt[a] is a 2015 action role-playing video game developed and published by CD Projekt. 
+Based on The Witcher series of fantasy novels by Polish author Andrzej Sapkowski, 
+it is the sequel to the 2011 video game The Witcher 2: Assassins of Kings and the third installment in The Witcher video game series. 
+Played in an open world with a third-person perspective, players control protagonist Geralt of Rivia. 
+Geralt, a monster hunter known as a Witcher, is looking for his missing adopted daughter, 
+who is on the run from the Wild Hunt: an otherworldly force determined to capture and use her powers. 
+Players battle the game's many dangers with weapons and magic, interact with non-player characters, 
+and complete main-story and side quests to acquire experience points and gold, 
+which are used to increase Geralt's abilities and purchase equipment. Its central story has several endings, 
+determined by the player's choices at certain points in the game.'''
 
     send_mail = EncryptionDecryption.encrypt_mail(data, pubkey)
     print(send_mail)
+
     rcv_mail = EncryptionDecryption.decrypt_mail(send_mail, privkey)
     print(rcv_mail)
