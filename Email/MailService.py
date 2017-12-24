@@ -34,7 +34,7 @@ class MailServiceInterface:
 
     # send an e-mail to receiver attachments is a list of file paths. not binary stream.
     #  ['1048217874@qq.com'], '辣鸡，Project 做完了吗?', 'hhhhh', ['lenna.jpeg']
-    def send_mail(self, receivers, subject, content, attachments=None):
+    def send_mail(self, receiver, receivers, subject, content, attachments=None):
         raise NotImplementedError
 
 
@@ -73,21 +73,31 @@ class MailService(MailServiceInterface):
             self._show_mail(mail)
 
     def get_mails_in_folder(self, folder):
-        return self.mailbox.folder(folder).emails()
+        mails = self.mailbox.folder(folder).emails()
+        if mails is False:
+            return None
+        return mails
 
     def get_unseen_mails_in_folder(self, folder):
-        return self.mailbox.folder(folder).emails(self.query_builder.unanswered().unseen())
+        mails = self.mailbox.folder(folder).emails(self.query_builder.unanswered().unseen())
+        if mails is False:
+            return None
+        return mails
 
     def get_unanswered_mails_in_folder(self, folder):
-        return self.mailbox.folder(folder).emails(self.query_builder.unanswered().unanswered())
+        mails = self.mailbox.folder(folder).emails(self.query_builder.unanswered().unanswered())
+        if mails is False:
+            return None
+        return mails
 
-    def send_mail(self, receivers, subject, content, attachments=None):
+    def send_mail(self, receiver, receivers, subject, content, attachments=None):
         account = self.user_config['account']
         password = self.user_config['password']
 
         message = MIMEMultipart()
         message['From'] = account
         message['To'] = ';'.join(receivers)
+        # message['To'] = receivers
         message['Subject'] = subject
         message['Date'] = formatdate(localtime=True)
         message.attach(MIMEText(content))
@@ -105,7 +115,7 @@ class MailService(MailServiceInterface):
             smtpObj = smtplib.SMTP()
             smtpObj.connect(self.user_config['smtp_server'], self.user_config['smtp_port'])
             smtpObj.login(account, password)
-            smtpObj.sendmail(account.format(account), receivers, message.as_string())
+            smtpObj.sendmail(account.format(account), receiver, message.as_string())
             smtpObj.close()
         except smtplib.SMTPException as e:
             print("Error: Unable to send email!")
