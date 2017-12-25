@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets, QtGui,QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 
-from login import Ui_Login
+from UI.login import Ui_Login
 
 
 class mywindow(QtWidgets.QWidget, Ui_Login):

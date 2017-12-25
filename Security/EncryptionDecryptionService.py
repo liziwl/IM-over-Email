@@ -4,6 +4,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 from cryptography.hazmat.backends import default_backend
 import base64
 
+
 class EncryptionDecryptionServiceInterface:
     # encrypt an e-mail using chacah20
     # input: content of the mail RSA public key (rsa public key object)
@@ -14,14 +15,60 @@ class EncryptionDecryptionServiceInterface:
     def encrypt_mail(mail, public_key):
         raise NotImplementedError
 
+    # input: binary files list [ {'filename':'','data':b''} ]
+    # output: encrypted keys (first two) and encrypted binary files [ {'filename':'','data':encrypted_b''} ]
+    @staticmethod
+    def decrypt_attachments(attachments, privkey):
+        raise NotImplementedError
+
     # decrypt an e-mail
-    # imput: mail rsa private_key object
+    # input: mail rsa private_key object
     @staticmethod
     def decrypt_mail(mail, private_key):
         raise NotImplementedError
 
+    # decrypt an e-mail attachments
+    # input: encrypted keys (first two) and encrypted binary files
+    # output: decrypt binary files as a list of {'filename':'','data':b''}
+    @staticmethod
+    def encrypt_attachments(attachments, pubkey):
+        raise NotImplementedError
+
 
 class EncryptionDecryption(EncryptionDecryptionServiceInterface):
+    @staticmethod
+    def decrypt_attachments(attachments, private_key):
+        if attachments is []:
+            return []
+        ct_chacha20_key = attachments[0]['data']
+        chacha20_key = EncryptionDecryption._rsa_decrypt(ct_chacha20_key, private_key)
+        # non encrypted
+        nonce = attachments[1]['data']
+
+        for attachment in attachments:
+            attachment['data'] = EncryptionDecryption._chacha20_decrypt(attachment['data'], chacha20_key, nonce)
+
+        return attachments
+
+    @staticmethod
+    def encrypt_attachments(attachments, public_key):
+        if attachments is []:
+            return None
+        encrypted_attachments = []
+        chacha20_key, nonce = EncryptionDecryption._generate_chanchan20_key()
+        encrypted_chacha20_key = EncryptionDecryption._rsa_encrypt(chacha20_key, public_key)
+
+        # add keys:
+        encrypted_attachments.append({'filename': 'encrypted_chacha20_key', 'data': encrypted_chacha20_key})
+        encrypted_attachments.append({'filename': 'nonce', 'data': nonce})
+
+        # encrypt files
+        for f in attachments or []:
+            encrypted_attachments.append({'filename': f['filename'],
+                                          'data': EncryptionDecryption._chacha20_encrypt(f['data'], chacha20_key,
+                                                                                         nonce)})
+        return encrypted_attachments
+
     @staticmethod
     def encrypt_mail(mail, public_key, encode_type='utf8'):
         # from str to binary
@@ -70,12 +117,12 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
         split_mail = mail.split('\n', 2)
         ct_chacha20_key = base64.b64decode(split_mail[0].encode('ascii'))
         # non encrypted
-        ct_nonce = base64.b64decode(split_mail[1].encode('ascii'))
+        nonce = base64.b64decode(split_mail[1].encode('ascii'))
         ct_mail = base64.b64decode(split_mail[2].encode('ascii'))
 
         chacha20_key = EncryptionDecryption._rsa_decrypt(ct_chacha20_key, private_key)
 
-        mail_bin = EncryptionDecryption._chacha20_decrypt(ct_mail, chacha20_key, ct_nonce)
+        mail_bin = EncryptionDecryption._chacha20_decrypt(ct_mail, chacha20_key, nonce)
         return mail_bin.decode(encode_type)
 
 

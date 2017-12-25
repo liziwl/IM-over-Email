@@ -102,13 +102,9 @@ class MailService(MailServiceInterface):
         message['Date'] = formatdate(localtime=True)
         message.attach(MIMEText(content))
 
-        for f in attachments or []:
-            with open(f, 'rb') as fil:
-                part = MIMEApplication(
-                    fil.read(),
-                    Name=os.path.basename(f)
-                )
-            part['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(f)
+        for bf in attachments or []:
+            part = MIMEApplication(bf['data'], bf['filename'])
+            part['Content-Disposition'] = 'attachment; filename=%s' % bf['filename']
             message.attach(part)
 
         try:

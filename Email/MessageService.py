@@ -5,6 +5,7 @@ import uuid
 import copy
 # for testing
 import rsa
+import os
 
 # !! just fot test
 # we need this from KeyService
@@ -67,54 +68,57 @@ class MessageService(MessageServiceInterface):
 
     # receiver : send to
     # receivers: 收件人
-    def _send_message_single(self, receiver, receivers, message, attachments_path, uuid):
+    def _send_message_single(self, receiver, receivers, message, binary_attachments, uuid):
         # pubkey = KeyService.getPublicKey(account)
-
+        encrypted_binary_files = EncryptionDecryption.encrypt_attachments(binary_attachments, public_key=pubkey)
         ct_message = EncryptionDecryption.encrypt_mail(message, pubkey)
-        self.mailservice.send_mail(receiver, receivers, subject=uuid, content=ct_message, attachments=attachments_path)
+        self.mailservice.send_mail(receiver, receivers, subject=uuid, content=ct_message,
+                                   attachments=encrypted_binary_files)
 
     def send_message(self, receivers, message, attachments_path):
+        binary_attachments = []
+        for f in attachments_path or []:
+            with open(f, 'rb') as fil:
+                binary_attachments.append({'filename': os.path.basename(f), 'data': fil.read()})
         uid = self._getuuid(receivers)
         for receiver in receivers:
-            self._send_message_single(receiver, receivers, message, attachments_path, uid)
+            self._send_message_single(receiver, receivers, message, binary_attachments, uid)
+
+    def _decrypt_mail(self, mail):
+        try:
+            mail['text'][0]['text'] = EncryptionDecryption.decrypt_mail(mail['text'][0]['text'], self.privkey)
+            mail['attachments'] = EncryptionDecryption.decrypt_attachments(mail['attachments'], self.privkey)
+            print('decrypted!\n')
+            print(mail['text'][0]['text'])
+            return mail
+        except:
+            return None
 
     def get_message(self, folder):
         msg = []
         mails = self.mailservice.get_mails_in_folder(folder)
         for mail in mails:
-            try:
-                mail['text'][0]['text'] = EncryptionDecryption.decrypt_mail(mail['text'][0]['text'], self.privkey)
-                print('decrypted!\n')
-                print(mail['text'][0]['text'])
-                msg.append(mail)
-            except:
-                pass
+            de_mail = self._decrypt_mail(mail)
+            if de_mail is not None:
+                msg.append(de_mail)
         return msg
 
     def get_unseen_message(self, folder):
         msg = []
         mails = self.mailservice.get_unseen_mails_in_folder(folder)
         for mail in mails:
-            try:
-                mail['text'][0]['text'] = EncryptionDecryption.decrypt_mail(mail['text'][0]['text'], self.privkey)
-                print('decrypted!\n')
-                print(mail['text'][0]['text'])
-                msg.append(mail)
-            except:
-                pass
+            de_mail = self._decrypt_mail(mail)
+            if de_mail is not None:
+                msg.append(de_mail)
         return msg
 
     def get_unanswered_message(self, folder):
         msg = []
         mails = self.mailservice.get_unanswered_mails_in_folder(folder)
         for mail in mails:
-            try:
-                mail['text'][0]['text'] = EncryptionDecryption.decrypt_mail(mail['text'][0]['text'], self.privkey)
-                print('decrypted!\n')
-                print(mail['text'][0]['text'])
-                msg.append(mail)
-            except:
-                pass
+            de_mail = self._decrypt_mail(mail)
+            if de_mail is not None:
+                msg.append(de_mail)
         return msg
 
     # # we should make a new folder for this
@@ -161,7 +165,7 @@ if __name__ == '__main__':
     messageserver = MessageService(user_config)
 
     # please use your e-mail to try this :)
-    messageserver.send_message(['pengym_111@163.com'], 'hello2', None)
+    messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
 
     messageserver.get_unseen_message('INBOX')
 
