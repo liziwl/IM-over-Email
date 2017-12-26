@@ -49,6 +49,10 @@ class Ui_Login(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
 
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
+
         self.retranslateUi(Login)
         self.pushButton.clicked.connect(Login.try_login)
         QtCore.QMetaObject.connectSlotsByName(Login)

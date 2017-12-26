@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWebChannel
 from PyQt5.QtWidgets import *
-from chat import *
+from UI.chat import *
 
 
 class chatwin(QMainWindow):
