@@ -3,6 +3,27 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from UI.alert_none import *
 import sys
 
+config_qq = {
+    "imap_server": "imap.qq.com",
+    "imap_port": 993,
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": 465
+}
+
+config_163 = {
+    "imap_server": "imap.163.com",
+    "imap_port": 993,
+    "smtp_server": "smtp.163.com",
+    "smtp_port": 25
+}
+
+config_sustech = {
+    "imap_server": "imap.exmail.qq.com",
+    "imap_port": 993,
+    "smtp_server": "smtp.exmail.qq.com",
+    "smtp_port": 465
+}
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -110,6 +131,7 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
         super().__init__()
         self.con_win = Ui_Dialog()  # The name of my top level object is MainWindow
         self.con_win.setupUi(self)
+        self.user_config = {}
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -119,10 +141,16 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
         if self.con_win.tabWidget.currentIndex() == 0:
             if self.con_win.qq_button.isChecked():
                 print("QQ is selected")
+                self.user_config = config_qq
+                self.close()
             elif self.con_win.r163_button.isChecked():
                 print("163 is selected")
+                self.user_config = config_163
+                self.close()
             elif self.con_win.sustech_button.isChecked():
                 print("Sustech is selected")
+                self.user_config = config_sustech
+                self.close()
             else:
                 print("none is selected")
                 if self.con_win.alert.exec_() == 0:
@@ -136,6 +164,11 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
             if imap_server and imap_port and smtp_server and smtp_port:
                 print(imap_server, ":", imap_port)
                 print(smtp_server, ":", smtp_port)
+                self.user_config["imap_server"] = imap_server
+                self.user_config["imap_port"] = imap_port
+                self.user_config["smtp_server"] = smtp_server
+                self.user_config["smtp_port"] = smtp_port
+                self.close()
             else:
                 print("none is entered")
                 if self.con_win.alert.exec_() == 0:
