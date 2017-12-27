@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 import sys
 import time
 
@@ -37,12 +38,12 @@ class Ui_MainWindow(object):
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(270, 530, 590, 80))
         self.textEdit.setObjectName("textEdit")
+
         self.send_button = QtWidgets.QPushButton(self.centralwidget)
         self.send_button.setGeometry(QtCore.QRect(870, 530, 80, 80))
         self.send_button.setObjectName("send_button")
         self.send_button.clicked.connect(MainWindow.send_mess)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
 
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(40, 80, 210, 470))
@@ -50,10 +51,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.new_group_button = QtWidgets.QPushButton(self.centralwidget)
-        self.new_group_button.setGeometry(QtCore.QRect(35, 560, 200, 35))
-        self.new_group_button.setObjectName("new_group_button")
-        self.new_group_button.clicked.connect(MainWindow.new_group)
+        self.new_contact_button = QtWidgets.QPushButton(self.centralwidget)
+        self.new_contact_button.setGeometry(QtCore.QRect(35, 560, 200, 35))
+        self.new_contact_button.setObjectName("new_contact_button")
+        self.new_contact_button.clicked.connect(MainWindow.new_contact)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -73,16 +74,15 @@ class Ui_MainWindow(object):
         self.friend_name_label.setFont(font16)
         self.send_button.setText("Send")
         self.send_button.setFont(font12)
-        self.new_group_button.setText("Create new group")
-        self.new_group_button.setFont(font12)
+        self.new_contact_button.setText("Create new contact")
+        self.new_contact_button.setFont(font12)
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
 
 
-
-class chatwin(QMainWindow,Ui_MainWindow):
+class chatwin(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.map_ui = Ui_MainWindow()  # The name of my top level object is MainWindow
@@ -99,9 +99,15 @@ class chatwin(QMainWindow,Ui_MainWindow):
         print(text)
         self.map_ui.textEdit.clear()
 
-    def new_group(self):
+    def new_contact(self):
         print("click2")
         pass
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Return and (event.modifiers() == QtCore.Qt.ControlModifier):
+            self.send_mess()
+        else:
+            super().keyPressEvent(event)
 
 
 if __name__ == '__main__':

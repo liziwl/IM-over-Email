@@ -9,6 +9,7 @@ class loginwin(QtWidgets.QWidget, Ui_Login):
         self.chat_win = chatwin()
 
     def try_login(self):
+        # 这里写授权登陆的函数
         if not self.chat_win.isVisible():
             self.chat_win.show()
             self.close()
