@@ -1,20 +1,28 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-import sys
-
-from UI.login import Ui_Login
+from UI.login import *
+from UI.chat import *
 
 
-class mywindow(QtWidgets.QWidget, Ui_Login):
+class loginwin(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
-        super(mywindow, self).__init__()
+        super(loginwin, self).__init__()
         self.setupUi(self)
+        self.chat_win = chatwin()
 
-    # 定义槽函数
     def try_login(self):
-        pass
+        if not self.chat_win.isVisible():
+            self.chat_win.show()
+            self.close()
+
+
+
+class chatwin(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.map_ui = Ui_MainWindow()
+        self.map_ui.setupUi(self)
 
 
 app = QtWidgets.QApplication(sys.argv)
-window = mywindow()
-window.show()
+ex = loginwin()
+ex.show()
 sys.exit(app.exec_())

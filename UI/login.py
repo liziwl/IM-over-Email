@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file '.\login.ui'
-#
-# Created by: PyQt5 UI code generator 5.9.2
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -17,36 +9,31 @@ class Ui_Login(object):
         Login.setMaximumSize(QtCore.QSize(500, 400))
         self.lineEdit = QtWidgets.QLineEdit(Login)
         self.lineEdit.setGeometry(QtCore.QRect(100, 120, 291, 41))
-        font = QtGui.QFont()
-        font.setFamily("Consolas")
-        font.setPointSize(16)
-        self.lineEdit.setFont(font)
+
+        font16 = QtGui.QFont()
+        font16.setFamily("Consolas")
+        font16.setPointSize(16)
+        self.lineEdit.setFont(font16)
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton = QtWidgets.QPushButton(Login)
         self.pushButton.setGeometry(QtCore.QRect(150, 250, 191, 41))
-        font = QtGui.QFont()
-        font.setFamily("Consolas")
-        font.setPointSize(16)
-        self.pushButton.setFont(font)
-        self.pushButton.setObjectName("pushButton")
+        self.pushButton.setFont(font16)
+        self.pushButton.setObjectName("send_button")
         self.lineEdit_2 = QtWidgets.QLineEdit(Login)
         self.lineEdit_2.setGeometry(QtCore.QRect(100, 190, 291, 41))
-        font = QtGui.QFont()
-        font.setFamily("Consolas")
-        font.setPointSize(16)
-        self.lineEdit_2.setFont(font)
+        self.lineEdit_2.setFont(font16)
         self.lineEdit_2.setText("")
         self.lineEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.label = QtWidgets.QLabel(Login)
         self.label.setGeometry(QtCore.QRect(70, 10, 381, 101))
-        font = QtGui.QFont()
-        font.setFamily("Consolas")
-        font.setPointSize(36)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label.setFont(font)
+        font36 = QtGui.QFont()
+        font36.setFamily("Consolas")
+        font36.setPointSize(36)
+        font36.setBold(True)
+        font36.setWeight(75)
+        self.label.setFont(font36)
         self.label.setObjectName("label")
 
         icon = QtGui.QIcon()
