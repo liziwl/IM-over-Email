@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 import sys
+import time
 
 
 class Ui_MainWindow(object):
@@ -88,8 +89,15 @@ class chatwin(QMainWindow,Ui_MainWindow):
         self.map_ui.setupUi(self)
 
     def send_mess(self):
-        print("click")
-        pass
+        text = self.map_ui.textEdit.toPlainText()
+        now = time.localtime()
+        dt = time.strftime("%Y-%m-%d %H:%M:%S", now)
+        self.map_ui.textBrowser.append(dt)
+        self.map_ui.textBrowser.append(text)
+
+        print(dt)
+        print(text)
+        self.map_ui.textEdit.clear()
 
     def new_group(self):
         print("click2")

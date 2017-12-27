@@ -13,15 +13,6 @@ class loginwin(QtWidgets.QWidget, Ui_Login):
             self.chat_win.show()
             self.close()
 
-
-
-class chatwin(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.map_ui = Ui_MainWindow()
-        self.map_ui.setupUi(self)
-
-
 app = QtWidgets.QApplication(sys.argv)
 ex = loginwin()
 ex.show()

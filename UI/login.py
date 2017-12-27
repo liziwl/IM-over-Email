@@ -16,16 +16,19 @@ class Ui_Login(object):
         self.lineEdit.setFont(font16)
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
-        self.pushButton = QtWidgets.QPushButton(Login)
-        self.pushButton.setGeometry(QtCore.QRect(150, 250, 190, 40))
-        self.pushButton.setFont(font16)
-        self.pushButton.setObjectName("send_button")
+
         self.lineEdit_2 = QtWidgets.QLineEdit(Login)
         self.lineEdit_2.setGeometry(QtCore.QRect(100, 190, 290, 40))
         self.lineEdit_2.setFont(font16)
         self.lineEdit_2.setText("")
         self.lineEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
         self.lineEdit_2.setObjectName("lineEdit_2")
+
+        self.pushButton = QtWidgets.QPushButton(Login)
+        self.pushButton.setGeometry(QtCore.QRect(150, 250, 190, 40))
+        self.pushButton.setFont(font16)
+        self.pushButton.setObjectName("send_button")
+
         self.label = QtWidgets.QLabel(Login)
         self.label.setGeometry(QtCore.QRect(90, 10, 380, 100))
         font36 = QtGui.QFont()
