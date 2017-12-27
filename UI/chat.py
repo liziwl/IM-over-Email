@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -19,7 +20,7 @@ class Ui_MainWindow(object):
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(50, 30, 170, 30))
         self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
+        self.label.setObjectName("label_q")
         self.text_display_widget = QtWidgets.QWidget(self.centralwidget)
         self.text_display_widget.setGeometry(QtCore.QRect(270, 10, 680, 510))
         self.text_display_widget.setObjectName("text_display_widget")
