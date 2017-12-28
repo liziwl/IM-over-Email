@@ -30,7 +30,7 @@ class Ui_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(620, 270)
 
-        self.alert = alert_win()
+        self.alert = alert_win("Wrong server Config.")
 
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(200, 230, 200, 32))
