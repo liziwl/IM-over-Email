@@ -56,7 +56,7 @@ class Ui_Login(object):
         self.label.setObjectName("label_q")
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
 

@@ -47,7 +47,7 @@ class Ui_Dialog(object):
         self.qq_button.setGeometry(QtCore.QRect(80, 20, 145, 30))
         self.qq_button.setObjectName("qq_button")
 
-        pic_q = QtGui.QPixmap('qq.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
+        pic_q = QtGui.QPixmap('resource\\qq.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
         self.label_q = QtWidgets.QLabel(self.tab)
         self.label_q.setGeometry(QtCore.QRect(20, 40, 72, 15))
         self.label_q.setObjectName("label_q")
@@ -58,7 +58,7 @@ class Ui_Dialog(object):
         self.r163_button.setGeometry(QtCore.QRect(260, 20, 145, 30))
         self.r163_button.setObjectName("r163_button")
 
-        pic_163 = QtGui.QPixmap('163.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
+        pic_163 = QtGui.QPixmap('resource\\163.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
         self.label_163 = QtWidgets.QLabel(self.tab)
         self.label_163.setGeometry(QtCore.QRect(220, 40, 72, 15))
         self.label_163.setObjectName("label_163")
@@ -69,7 +69,7 @@ class Ui_Dialog(object):
         self.sustech_button.setGeometry(QtCore.QRect(450, 20, 145, 30))
         self.sustech_button.setObjectName("sustech_button")
 
-        pic_sus = QtGui.QPixmap('sustech.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
+        pic_sus = QtGui.QPixmap('resource\\sustech.png').scaledToHeight(150, QtCore.Qt.SmoothTransformation)
         self.label_sus = QtWidgets.QLabel(self.tab)
         self.label_sus.setGeometry(QtCore.QRect(420, 40, 72, 15))
         self.label_sus.setObjectName("label_sus")
@@ -134,7 +134,7 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
         self.user_config = {}
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
     def accept(self):
