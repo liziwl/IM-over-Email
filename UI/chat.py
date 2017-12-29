@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+from UI.add_contact import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from Email.MessageService import *
@@ -37,7 +38,7 @@ class Ui_MainWindow(object):
 
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(270, 530, 560, 80))
-        self.textEdit.lineWrapMode()  # 自动换行
+        self.textEdit.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)  # 自动换行
         self.textEdit.setObjectName("textEdit")
 
         send_fig = QtGui.QIcon()
@@ -80,9 +81,11 @@ class Ui_MainWindow(object):
         self.contact_label.setAlignment(QtCore.Qt.AlignCenter)
         self.contact_label.setObjectName("contact_label")
         self.verticalLayout_2.addWidget(self.contact_label)
+
         self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
         self.listWidget.setObjectName("listWidget")
         self.verticalLayout_2.addWidget(self.listWidget)
+
         self.new_contact_button = QtWidgets.QPushButton(self.left_verticalLayoutWidget)
         self.new_contact_button.setObjectName("new_contact_button")
         self.verticalLayout_2.addWidget(self.new_contact_button)
@@ -119,6 +122,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.map_ui = Ui_MainWindow()  # The name of my top level object is MainWindow
         self.map_ui.setupUi(self)
+        self.add_win = add_contact_win()
         self.messgae_handler = None
 
     def set_message_handler(self, handler):
@@ -141,7 +145,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
     def new_contact(self):
         print("click2")
-        pass
+        self.add_win.show()
 
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")
