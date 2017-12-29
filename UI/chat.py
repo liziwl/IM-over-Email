@@ -94,6 +94,10 @@ class Ui_MainWindow(object):
 
         MainWindow.setCentralWidget(self.centralwidget)
 
+        font10 = QtGui.QFont()
+        font10.setFamily("等线")
+        font10.setPointSize(10)
+
         font12 = QtGui.QFont()
         font12.setFamily("等线")
         font12.setPointSize(12)
@@ -105,12 +109,16 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle("ChatRoom")
         self.contact_label.setText("Friends")
         self.contact_label.setFont(font16)
-        self.friend_name_label.setText("Friend name")
-        self.friend_name_label.setFont(font16)
-        self.send_button.setText("Send")
-        self.send_button.setFont(font12)
+        self.listWidget.setFont(font12)
         self.new_contact_button.setText("Create new contact")
         self.new_contact_button.setFont(font12)
+
+        self.friend_name_label.setText("Friend name")
+        self.friend_name_label.setFont(font16)
+        self.textBrowser.setFont(font10)
+        self.textEdit.setFont(font12)
+        self.send_button.setText("Send")
+        self.send_button.setFont(font12)
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -144,8 +152,10 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.textEdit.clear()
 
     def new_contact(self):
-        print("click2")
-        self.add_win.show()
+        if self.add_win.exec_():
+            user = self.add_win.get_newcontact()
+            print(user)
+            self.map_ui.listWidget.addItem(user)
 
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")

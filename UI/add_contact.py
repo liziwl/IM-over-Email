@@ -25,7 +25,7 @@ class Ui_add_contact_Dialog(object):
         self.buttonBox.setObjectName("buttonBox")
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
+        self.buttonBox.accepted.connect(Dialog.ok)
         self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -49,21 +49,26 @@ class Ui_add_contact_Dialog(object):
         self.buttonBox.setFont(font12)
 
 
-class add_contact_win(QtWidgets.QWidget, Ui_add_contact_Dialog):
+class add_contact_win(QtWidgets.QDialog, Ui_add_contact_Dialog):
     def __init__(self):
         super().__init__()
         self.add_win = Ui_add_contact_Dialog()
         self.add_win.setupUi(self)
+        self.new_contact = None
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
-    def accept(self):
-        self.hide()
+    def ok(self):
+        self.new_contact = self.add_win.textEdit.toPlainText()
+        self.accept()
 
-    def reject(self):
-        self.close()
+    def get_newcontact(self):
+        temp = self.new_contact
+        self.new_contact = None
+        self.add_win.textEdit.clear()
+        return temp
 
 
 if __name__ == '__main__':
