@@ -18,10 +18,6 @@ class Ui_MainWindow(object):
         MainWindow.setMaximumSize(QtCore.QSize(960, 620))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.contact_label = QtWidgets.QLabel(self.centralwidget)
-        self.contact_label.setGeometry(QtCore.QRect(50, 30, 170, 30))
-        self.contact_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.contact_label.setObjectName("label_q")
         self.text_display_widget = QtWidgets.QWidget(self.centralwidget)
         self.text_display_widget.setGeometry(QtCore.QRect(270, 10, 680, 510))
         self.text_display_widget.setObjectName("text_display_widget")
@@ -78,10 +74,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.left_verticalLayoutWidget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.contact_label = QtWidgets.QLabel(self.left_verticalLayoutWidget)
-        self.contact_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.contact_label.setObjectName("contact_label")
-        self.verticalLayout_2.addWidget(self.contact_label)
 
         self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
         self.listWidget.setObjectName("listWidget")
@@ -109,13 +101,11 @@ class Ui_MainWindow(object):
         font16.setPointSize(16)
 
         MainWindow.setWindowTitle("ChatRoom")
-        self.contact_label.setText("Friends")
-        self.contact_label.setFont(font16)
         self.listWidget.setFont(font12)
         self.new_contact_button.setText("Create new contact")
         self.new_contact_button.setFont(font12)
 
-        self.friend_name_label.setText("Friend name")
+        # self.friend_name_label.setText("Friend name")
         self.friend_name_label.setFont(font16)
         self.textBrowser.setFont(font10)
         self.textEdit.setFont(font12)
@@ -149,11 +139,14 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.contacts_log[user] = Chat_log(user)
             print("add new user", user)
             new_user = QListWidgetItem(user)
+            self.map_ui.friend_name_label.setText(user)
             self.map_ui.listWidget.insertItem(0, new_user)
             self.map_ui.listWidget.setCurrentItem(new_user)
+            self.map_ui.textBrowser.clear()
 
     def switch_contact(self):
         contact = self.map_ui.listWidget.currentItem().text()
+        self.map_ui.friend_name_label.setText(contact)
         print(contact, self.contacts_log[contact].log_toString())
         self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
 
