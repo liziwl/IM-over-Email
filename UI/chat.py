@@ -2,6 +2,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from UI.add_contact import *
+from UI.chat_log import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from Email.MessageService import *
@@ -84,6 +85,7 @@ class Ui_MainWindow(object):
 
         self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
         self.listWidget.setObjectName("listWidget")
+        self.listWidget.itemClicked.connect(MainWindow.switch_contact)
         self.verticalLayout_2.addWidget(self.listWidget)
 
         self.new_contact_button = QtWidgets.QPushButton(self.left_verticalLayoutWidget)
@@ -132,6 +134,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.setupUi(self)
         self.add_win = add_contact_win()
         self.messgae_handler = None
+        self.contacts_log = {}
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
@@ -140,6 +143,20 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print(re)
         print(self.messgae_handler.get_all_conversion(['pengym_111@163.com']))
 
+    def new_contact(self):
+        if self.add_win.exec_():
+            user = self.add_win.get_newcontact()
+            self.contacts_log[user] = Chat_log(user)
+            print("add new user", user)
+            new_user = QListWidgetItem(user)
+            self.map_ui.listWidget.insertItem(0, new_user)
+            self.map_ui.listWidget.setCurrentItem(new_user)
+
+    def switch_contact(self):
+        contact = self.map_ui.listWidget.currentItem().text()
+        print(contact, self.contacts_log[contact].log_toString())
+        self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
+
     def send_mess(self):
         text = self.map_ui.textEdit.toPlainText()
         now = time.localtime()
@@ -147,15 +164,12 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.textBrowser.append(dt)
         self.map_ui.textBrowser.append(text)
 
+        contact = self.map_ui.listWidget.currentItem().text()
+        self.contacts_log[contact].add_log(text, dt)
+
         print(dt)
         print(text)
         self.map_ui.textEdit.clear()
-
-    def new_contact(self):
-        if self.add_win.exec_():
-            user = self.add_win.get_newcontact()
-            print(user)
-            self.map_ui.listWidget.addItem(user)
 
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")
