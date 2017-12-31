@@ -4,9 +4,9 @@ from UI.chat import *
 from UI.config import *
 
 
-class loginwin(QtWidgets.QWidget, Ui_Login):
+class LoginUI(QtWidgets.QWidget, LoginUI):
     def __init__(self):
-        super(loginwin, self).__init__()
+        super(LoginUI, self).__init__()
         self.setupUi(self)
         self.chat_win = chatwin()
         self.conf = config_win()
@@ -44,6 +44,6 @@ class loginwin(QtWidgets.QWidget, Ui_Login):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    ex = loginwin()
+    ex = LoginUI()
     ex.show()
     sys.exit(app.exec_())

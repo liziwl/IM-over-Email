@@ -1,6 +1,5 @@
-from Security.KeyService import KeyService
 from Security.EncryptionDecryptionService import EncryptionDecryption
-from Email.MailService import MailService
+from Main.service.MailService import MailService
 import uuid
 import copy
 # for testing
@@ -60,7 +59,7 @@ class MessageService(MessageServiceInterface):
     def _getuuid(self, accounts):
         accounts_name = copy.deepcopy(list(accounts))
         accounts_name.append(self.user_config['account'])
-        sorted(accounts_name)
+        accounts_name = sorted(accounts_name)
         names = ''
         for name in accounts_name:
             names = name + names

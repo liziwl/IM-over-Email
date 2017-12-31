@@ -2,7 +2,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Login(object):
+class LoginUI(object):
     def setupUi(self, Login):
         Login.setObjectName("Login")
         Login.resize(500, 340)
@@ -58,8 +58,6 @@ class Ui_Login(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-
-
 
         Login.setWindowTitle("Login")
         self.account_lineEdit.setPlaceholderText("Email address")
