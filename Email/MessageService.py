@@ -1,5 +1,5 @@
 from Security.EncryptionDecryptionService import EncryptionDecryption
-from Main.service.MailService import MailService
+from Email.MailService import MailService
 import uuid
 import copy
 # for testing
