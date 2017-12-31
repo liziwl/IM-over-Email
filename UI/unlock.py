@@ -52,7 +52,7 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
     def __init__(self):
         super().__init__()
         self.unlo_win = Ui_unlock()
-        self.login_win = LoginUI()
+        self.login_win = Login_win()
         self.alert = alert_win("Wrong lock password.")
         self.unlo_win.setupUi(self)
 
