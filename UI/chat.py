@@ -77,6 +77,8 @@ class Ui_MainWindow(object):
 
         self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
         self.listWidget.setObjectName("listWidget")
+        self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget.customContextMenuRequested.connect(MainWindow.right_click_menu)
         self.listWidget.itemClicked.connect(MainWindow.switch_contact)
         self.verticalLayout_2.addWidget(self.listWidget)
 
@@ -143,6 +145,45 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.map_ui.listWidget.insertItem(0, new_user)
             self.map_ui.listWidget.setCurrentItem(new_user)
             self.map_ui.textBrowser.clear()
+
+    def block_contact(self, pos):
+        item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
+        self.contacts_log[item.text()].set_blocked()
+        print("block user", item.text())
+        ban_fig = QtGui.QIcon()
+        ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
+                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        item.setIcon(ban_fig)
+
+    def unblock_contact(self, pos):
+        item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
+        self.contacts_log[item.text()].reset_blocked()
+        print("unblock user", item.text())
+        item.setIcon(QIcon())
+
+    def delete_contact(self, pos):
+        item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
+        print("delete user", item.text())
+        del self.contacts_log[item.text()]
+        self.map_ui.listWidget.takeItem(self.map_ui.listWidget.currentRow())
+        self.map_ui.textBrowser.clear()
+        self.map_ui.friend_name_label.clear()
+
+    def right_click_menu(self):
+        pos = QCursor.pos()
+        item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
+        if item is not None:
+            menu = QMenu()
+            if not self.contacts_log[item.text()].isblocked:
+                menu.addAction("Block", lambda: self.block_contact(pos))
+            else:
+                menu.addAction("UnBlock", lambda: self.unblock_contact(pos))
+            menu.addAction("Delete", lambda: self.delete_contact(pos))
+            menu.exec_(pos)
+        else:
+            menu = QMenu()
+            menu.addAction("Add", self.new_contact)
+            menu.exec_(pos)
 
     def switch_contact(self):
         contact = self.map_ui.listWidget.currentItem().text()

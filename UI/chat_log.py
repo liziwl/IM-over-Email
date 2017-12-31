@@ -7,6 +7,13 @@ class Chat_log(object):
         self.email = email
         self.uid = uid
         self.log = []
+        self.isblocked = False
+
+    def set_blocked(self):
+        self.isblocked = True
+
+    def reset_blocked(self):
+        self.isblocked = False
 
     def add_log(self, content, time=None):
         self.log.append(Log(content, time))
