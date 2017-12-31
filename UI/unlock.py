@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui, QtWidgets
+from UI.main import *
 import sys
 
 class Ui_unlock(object):
@@ -49,7 +50,9 @@ class Ui_unlock(object):
 class unlock_win(QtWidgets.QWidget, Ui_unlock):
     def __init__(self):
         super().__init__()
-        self.unlo_win = Ui_unlock()  # The name of my top level object is MainWindow
+        self.unlo_win = Ui_unlock()
+        self.login_win = loginwin()
+        self.alert = alert_win("Wrong lock password.")
         self.unlo_win.setupUi(self)
 
         icon = QtGui.QIcon()
@@ -57,10 +60,19 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
         self.setWindowIcon(icon)
 
     def accept(self):
-        self.hide()
+        self.authorize()
 
     def reject(self):
         self.close()
+
+    def authorize(self):
+        if self.unlo_win.lineEdit.text() == "123":
+            self.login_win.show()
+            self.close()
+        else:
+            if self.alert.exec_() == 0:
+                self.close()
+
 
 
 if __name__ == '__main__':
