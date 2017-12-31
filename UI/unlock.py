@@ -3,10 +3,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from UI.main import *
 import sys
 
+
 class Ui_unlock(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 300)
+        Dialog.setFixedSize(400, 300)
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(0, 60, 400, 32))
         self.label.setAlignment(QtCore.Qt.AlignCenter)
@@ -21,7 +22,7 @@ class Ui_unlock(object):
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 240, 340, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
 
         self.retranslateUi(Dialog)
@@ -51,7 +52,7 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
     def __init__(self):
         super().__init__()
         self.unlo_win = Ui_unlock()
-        self.login_win = loginwin()
+        self.login_win = LoginUI()
         self.alert = alert_win("Wrong lock password.")
         self.unlo_win.setupUi(self)
 
@@ -72,7 +73,6 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
         else:
             if self.alert.exec_() == 0:
                 self.close()
-
 
 
 if __name__ == '__main__':

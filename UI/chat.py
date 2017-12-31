@@ -152,7 +152,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print("block user", item.text())
         ban_fig = QtGui.QIcon()
         ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
         item.setIcon(ban_fig)
 
     def unblock_contact(self, pos):
@@ -166,8 +166,12 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print("delete user", item.text())
         del self.contacts_log[item.text()]
         self.map_ui.listWidget.takeItem(self.map_ui.listWidget.currentRow())
-        self.map_ui.textBrowser.clear()
-        self.map_ui.friend_name_label.clear()
+        if self.map_ui.listWidget.count() > 0:
+            self.map_ui.listWidget.setCurrentRow(0)
+            self.switch_contact()
+        else:
+            self.map_ui.textBrowser.clear()
+            self.map_ui.friend_name_label.clear()
 
     def right_click_menu(self):
         pos = QCursor.pos()
@@ -188,7 +192,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def switch_contact(self):
         contact = self.map_ui.listWidget.currentItem().text()
         self.map_ui.friend_name_label.setText(contact)
-        print(contact, self.contacts_log[contact].log_toString())
+        print("switch contact", contact, self.contacts_log[contact].log_toString())
         self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
 
     def send_mess(self):
@@ -198,8 +202,11 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.textBrowser.append(dt)
         self.map_ui.textBrowser.append(text)
 
-        contact = self.map_ui.listWidget.currentItem().text()
-        self.contacts_log[contact].add_log(text, dt)
+        contact = self.map_ui.listWidget.currentItem()
+        if contact is None:
+            self.map_ui.listWidget.setCurrentRow(0)
+            contact = self.map_ui.listWidget.currentItem()
+        self.contacts_log[contact.text()].add_log(text, dt)
 
         print(dt)
         print(text)

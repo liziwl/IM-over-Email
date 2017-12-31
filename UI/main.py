@@ -4,6 +4,7 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 
+
 class LoginUI(QtWidgets.QWidget, LoginUI):
     def __init__(self):
         super(LoginUI, self).__init__()
