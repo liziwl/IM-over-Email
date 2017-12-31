@@ -2,7 +2,7 @@
 from UI.login import *
 from UI.chat import *
 from UI.config import *
-
+from Email.MessageService import *
 
 class LoginUI(QtWidgets.QWidget, LoginUI):
     def __init__(self):
@@ -13,6 +13,7 @@ class LoginUI(QtWidgets.QWidget, LoginUI):
         self.alert = alert_win("Wrong Account or password.")
 
         self.user_config = {}
+        self.message_handler = None
 
     def try_login(self):
         # 这里写授权登陆的函数
@@ -34,7 +35,10 @@ class LoginUI(QtWidgets.QWidget, LoginUI):
                 self.user_config["account"] = account
                 self.user_config["password"] = pwd
                 print(self.conf.user_config)
+                # 这里已经获取了所有需要的信息，尝试登录
+                # self.message_handler = MessageService(self.user_config)
                 if not self.chat_win.isVisible():
+                    # self.chat_win.set_message_handler(self.message_handler)
                     self.chat_win.show()
                     self.close()
 
