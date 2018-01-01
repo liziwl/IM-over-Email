@@ -1,0 +1,14 @@
+server:
+  port: 9999
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/keyserver
+    username: admin
+    password: qgJX59pQln8Q7lhgw7CN
+    dbcp:
+          test-while-idle: true
+          validation-query: SELECT 1
+  jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
