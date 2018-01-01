@@ -10,7 +10,7 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 01/01/2018 15:47:54
+ Date: 01/01/2018 18:51:43
 */
 
 PRAGMA foreign_keys = false;
@@ -35,7 +35,7 @@ DROP TABLE IF EXISTS "groups";
 CREATE TABLE "groups" (
   "name" text,
   "uuid" text,
-  PRIMARY KEY ("uuid", "name")
+  PRIMARY KEY ("uuid")
 );
 
 -- ----------------------------
@@ -58,12 +58,12 @@ CREATE TABLE "member_in_group" (
 DROP TABLE IF EXISTS "messages";
 CREATE TABLE "messages" (
   "content" text,
-  "date_" text,
+  "date" text,
   "sender" text,
-  "group_" integer,
+  "group" integer,
   "id" integer,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("uuid") ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT "fk_group_id" FOREIGN KEY ("group") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 PRAGMA foreign_keys = true;

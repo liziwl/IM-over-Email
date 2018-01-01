@@ -52,7 +52,6 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_port']
                 )
                 self.mainDao.insert_user(new_user)
-            # TODO: 验证lockpassword
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
             if not self.chat_win.isVisible():

@@ -22,23 +22,24 @@ class UserDao(object):
         if not self.is_contact_exists(contact.account):
             c = self.conn.cursor()
             c.execute(
-                "INSERT INTO contacts(name, account, public_key, trusted) "
-                "VALUES(?, ?, ?, ?)",
+                "INSERT INTO contacts(name, account, public_key, trusted, is_blocked) "
+                "VALUES(?, ?, ?, ?, ?)",
                 [
                     contact.name,
                     contact.account,
                     contact.public_key,
-                    contact.trusted
+                    contact.trusted,
+                    contact.is_blocked
                 ])
             self.conn.commit()
 
     def get_contacts(self):
         c = self.conn.cursor()
         c.execute(
-            "SELECT name, account, public_key, trusted FROM contacts"
+            "SELECT name, account, public_key, trusted, is_blocked FROM contacts"
         )
         return [
-           Contact(r[0], r[1], r[2], r[3] == 1) for r in c.fetchall()
+           Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
         ]
 
     def is_contact_exists(self, account):
@@ -99,14 +100,14 @@ class UserDao(object):
         group_name = c.fetchone()[0]
         c = self.conn.cursor()
         c.execute(
-            "SELECT name, account, public_key, trusted FROM contacts "
+            "SELECT name, account, public_key, trusted, is_blocked FROM contacts "
             "INNER JOIN "
             "(SELECT member_id FROM member_in_group "
             "WHERE group_id = ?) AS member_ids "
             "ON contacts.id = member_ids.member_id", [uuid]
         )
         members = [
-           Contact(r[0], r[1], r[2], r[3] == 1) for r in c.fetchall()
+           Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
         ]
         return Group(group_name, members, uuid)
 
@@ -132,9 +133,11 @@ class UserDao(object):
 if __name__ == '__main__':
     userDao = UserDao('pengym_111@163.com', '../test.db')
     userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
+    userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
     for group in userDao.get_groups():
         for member in group.members:
             print(member.account)
 
         for message in userDao.get_group_messages(group.group_uuid):
             print(message)
+
