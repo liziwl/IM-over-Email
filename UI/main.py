@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from Main.model.user import User
 from UI.login import *
 from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
+from Main.dao.main_dao import MainDao
 
 
 class Login_win(QtWidgets.QWidget, Ui_Login):
@@ -15,12 +17,14 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
 
         self.user_config = {}
         self.message_handler = None
+        self.mainDao = MainDao('../Main/main.db')
 
     def try_login(self):
         # 这里写授权登陆的函数
         if not self.conf.isVisible():
             account = self.account_lineEdit.text().strip()
             pwd = self.pwd_lineEdit.text().strip()
+
             # 如果帐号密码还未输入提示
             if not (account and pwd):
                 if self.alert.exec_() == 0:
@@ -28,20 +32,28 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     return
                 else:
                     return
-            self.user_config = self.conf.user_config
-            # 如果user_config服务器配置不存在，尝试配置
-            if not self.user_config:
-                self.try_setting()
-            else:
+            # 判断用户是否存在
+            if not self.mainDao.is_account_exists(account):
+                self.user_config = self.conf.user_config
                 self.user_config["account"] = account
                 self.user_config["password"] = pwd
-                print(self.conf.user_config)
-                # 这里已经获取了所有需要的信息，尝试登录
-                # self.message_handler = MessageService(self.user_config)
-                if not self.chat_win.isVisible():
-                    # self.chat_win.set_message_handler(self.message_handler)
-                    self.chat_win.show()
-                    self.close()
+                # 保存用户
+                new_user = User(
+                    self.user_config['account'],
+                    self.user_config['lock_password'],
+                    self.user_config['smtp_server'],
+                    self.user_config['smtp_port'],
+                    self.user_config['imap_server'],
+                    self.user_config['imap_port']
+                )
+                self.mainDao.insert_user(new_user)
+            # TODO: 验证lockpassword
+            # 这里已经获取了所有需要的信息，尝试登录
+            # self.message_handler = MessageService(self.user_config)
+            if not self.chat_win.isVisible():
+                # self.chat_win.set_message_handler(self.message_handler)
+                self.chat_win.show()
+                self.close()
 
     def try_setting(self):
         self.conf.show()

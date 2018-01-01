@@ -10,7 +10,7 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 01/01/2018 15:48:59
+ Date: 01/01/2018 16:41:32
 */
 
 PRAGMA foreign_keys = false;
@@ -28,7 +28,6 @@ DROP TABLE IF EXISTS "users";
 CREATE TABLE "users" (
   "account" text,
   "lock_password" text,
-  "private_key" text,
   "smtp_server" text,
   "smtp_port" integer,
   "imap_server" text,
