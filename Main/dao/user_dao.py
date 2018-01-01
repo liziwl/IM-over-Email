@@ -18,17 +18,18 @@ class UserDao(object):
         self.conn.close()
 
     def add_contact(self, contact):
-        c = self.conn.cursor()
-        c.execute(
-            "INSERT INTO contacts(name, account, public_key, trusted) "
-            "VALUES(?, ?, ?, ?)",
-            [
-                contact.name,
-                contact.account,
-                contact.public_key,
-                contact.trusted
-            ])
-        self.conn.commit()
+        if not self.is_contact_exists(contact.account):
+            c = self.conn.cursor()
+            c.execute(
+                "INSERT INTO contacts(name, account, public_key, trusted) "
+                "VALUES(?, ?, ?, ?)",
+                [
+                    contact.name,
+                    contact.account,
+                    contact.public_key,
+                    contact.trusted
+                ])
+            self.conn.commit()
 
     def get_contacts(self):
         c = self.conn.cursor()
@@ -38,6 +39,14 @@ class UserDao(object):
         return [
            Contact(r[0], r[1], r[2], r[3] == 1) for r in c.fetchall()
         ]
+
+    def is_contact_exists(self, account):
+        c = self.conn.cursor()
+        c.execute(
+            "SELECT * FROM contacts "
+            "WHERE account = ?", [account]
+        )
+        return c.fetchone() is not None
 
     def get_groups(self):
         c = self.conn.cursor()
@@ -60,16 +69,25 @@ class UserDao(object):
         for name in accounts_name:
             names = name + names
         group_uuid = str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
+        if not self.is_group_exists(group_uuid):
+            c.execute(
+                "INSERT INTO groups(name, uuid) "
+                "VALUES (?, ?)", [group_name, group_uuid]
+            )
+            c.execute(
+                "INSERT INTO member_in_group(member_id, group_id) "
+                "SELECT id, ? FROM contacts "
+                "WHERE account IN %s" % str(accounts), [group_uuid]
+            )
+            self.conn.commit()
+
+    def is_group_exists(self, group_uuid):
+        c = self.conn.cursor()
         c.execute(
-            "INSERT INTO groups(name, uuid) "
-            "VALUES (?, ?)", [group_name, group_uuid]
+            "SELECT * FROM groups "
+            "WHERE uuid = ?", [group_uuid]
         )
-        c.execute(
-            "INSERT INTO member_in_group(member_id, group_id) "
-            "SELECT id, ? FROM contacts "
-            "WHERE account IN %s" % str(accounts), [group_uuid]
-        )
-        self.conn.commit()
+        return c.fetchone() is not None
 
     def get_group(self, uuid):
         c = self.conn.cursor()

@@ -20,17 +20,27 @@ class MainDao(object):
     def __del__(self):
         self.conn.close()
 
-    def insert_user(self, user):
+    def is_account_exists(self, account):
         c = self.conn.cursor()
         c.execute(
-            "INSERT INTO users(account, lock_password, private_key, smtp_server, smtp_port, imap_server, imap_port) "
-            "VALUES(?, ?, ?, ?, ?, ?, ?);",
-            [(
-                user.account, user.lock_password, user.private_key,
-                user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
-            )]
+            "SELECT * FROM users "
+            "WHERE account = ?", [account]
         )
-        self.conn.commit()
+        return c.fetchone() is not None
+
+    def insert_user(self, user):
+        if not self.is_account_exists(user.account):
+            c = self.conn.cursor()
+            c.execute(
+                "INSERT INTO users(account, lock_password, private_key,"
+                " smtp_server, smtp_port, imap_server, imap_port) "
+                "VALUES(?, ?, ?, ?, ?, ?, ?);",
+                [(
+                    user.account, user.lock_password, user.private_key,
+                    user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
+                )]
+            )
+            self.conn.commit()
 
     def get_user_info(self, account):
         c = self.conn.cursor()
@@ -54,17 +64,9 @@ class MainDao(object):
 
 if __name__ == '__main__':
     mainDao = MainDao()
-    # mainDao.insert_user(
-    #     {
-    #         'account': 'pengym_111@163.com',
-    #         'lock_password': '123456',
-    #         'private_key': '123456',
-    #         'smtp_server': 'smtp.163.com',
-    #         'smtp_port': 25,
-    #         'imap_server': 'imap.163.com',
-    #         'imap_port': 993
-    #     }
-    # )
+    mainDao.insert_user(
+        User('pengym_111@163.com', '123456', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
+    )
     result = mainDao.get_user_info("pengym_111@163.com")
     print(result.account)
     print(mainDao.verify_user('pengym_111@163.com', '123456'))
