@@ -1,13 +1,16 @@
 import rsa
 import gnupg
-
+import requests
+from Security.EncryptionDecryptionService import EncryptionDecryption
+import os
+import random
+import sys
 
 
 class KeyServiceInterface:
     # get the AES public key of a account
     @staticmethod
     def getPublickey(account):
-
         raise NotImplementedError
 
     @staticmethod
@@ -45,7 +48,7 @@ class KeyServiceInterface:
 class KeyService(KeyServiceInterface):
     @staticmethod
     def check_publickey(account, public_key):
-        compare_uid = "<"+account+">"
+        compare_uid = "<" + account + ">"
         gpg = gnupg.GPG()
         user_keys = gpg.list_keys()
         for key_array in user_keys:
@@ -58,36 +61,61 @@ class KeyService(KeyServiceInterface):
                     return False
 
     @staticmethod
-    def generate_keys(name, email_address, password):
-        gpg = gnupg.GPG(homedir='~/.gnupg')
-        user_input = gpg.gen_key_input(name_real=name, name_email=email_address, passphrase=password)
-        user_key = gpg.gen_key(user_input)
-        # send public key to server
-        gpg.send_keys('hkp://pgp.mit.edu', user_key.key_id)
-        return user_key
+    def generate_keys(email_address, password):
+        pubkey,privkey = rsa.newkeys(512)
+
+        KeyService._post_keys(email_address,pubkey)
+
+        privkey_pem = privkey.save_pkcs1('PEM')
+        random.seed(password)
+        chacha20_key = random.getrandbits(32 * 8).to_bytes(32, sys.byteorder)
+        nonce = random.getrandbits(16 * 8).to_bytes(16, sys.byteorder)
+
+        ct_private_key = EncryptionDecryption.chacha20_encrypt(privkey_pem,chacha20_key,nonce)
+
+        with open("private_key"+email_address,'wb') as f:
+            f.write(ct_private_key)
+            f.close()
+        return privkey
+
+    # post public key to server
+    @staticmethod
+    def _post_keys(email_address,pubkey):
+        pubkey_pem = pubkey.save_pkcs1("PEM")
+        # base64.b64encode(ct_mail).decode('ascii')
+        # post the key to server
+        payload = {"email": email_address, "public_key": pubkey_pem.decode('ascii')}
+        r = requests.post("http://csyllabus.org:9999/api/key", json=payload)
 
     @staticmethod
     def getPublicKey(account):
-        gpg = gnupg.GPG()
-        key_information = gpg.search_keys(account, 'hkp://pgp.mit.edu')
-        public_key = gpg.export_keys(key_information[0]["keyid"])
-        return public_key
+        # get binary key from server as string
+        payload = {"email":account}
+        r = requests.post("http://csyllabus.org:9999/api/key/public_key",json=payload)
+        r.encoding = 'ascii'
+        str_pk = r.text
+        pk = str_pk.encode('ascii')
+        return rsa.PublicKey.load_pkcs1(pk,format="PEM")
+
 
     @staticmethod
-    def getPrivateKey(account):
-        compare_uid = "<" + account + ">"
-        gpg = gnupg.GPG()
-        user_keys = gpg.list_keys()
-        for key_array in user_keys:
-            uid = key_array["uids"][0].split(' ', 1)[1]
-            if compare_uid == uid:
-                private_key_fingerprint=key_array["fingerprint"]
-                private_key=gpg.export_keys(private_key_fingerprint,True)
-        return private_key
+    def getPrivateKey(account,password):
+        try:
+            with open("private_key"+account,'rb') as f:
+                pk = f.read()
+                f.close()
+            random.seed(password)
+            chacha20_key = random.getrandbits(32 * 8).to_bytes(32,sys.byteorder)
+            nonce = random.getrandbits(16 * 8).to_bytes(16,sys.byteorder)
+
+            de_pk = EncryptionDecryption.chacha20_decrypt(pk,chacha20_key,nonce)
+            return rsa.PrivateKey.load_pkcs1(de_pk,format="PEM")
+        except FileNotFoundError:
+            print("this user has not generate private key!")
 
     @staticmethod
     def save_privkey(account, format='PEM'):
-        private_key=KeyService.getPrivateKey(account)
+        private_key = KeyService.getPrivateKey(account)
         return private_key.save_pkcs1(format=format)
 
     @staticmethod
@@ -105,11 +133,24 @@ class KeyService(KeyServiceInterface):
 
 
 if __name__ == '__main__':
+    import random
+    random.seed('hhhh')
 
-    print(KeyService.generate_keys())
+
+    print(KeyService.getPublicKey("pengym_111@163.com"))
+    # print(KeyService.getPublicKey("1048217874@qq.com"))
+    # print(KeyService.generate_keys("pengym_111@163.com","123456"))
+
+    print(KeyService.getPrivateKey("pengym_111@163.com","123456"))
+
+
+
+
+    #print(KeyService.generate_keys())
     # from the public key object to binary file
     # pem_pubkey = KeyService.save_pubkey(pubkey)
     # from the binary file to public key object
     # red_pubkey = KeyService.load_pubkey(pem_pubkey)
     # print(red_pubkey)
     # print(pem_pubkey)
+

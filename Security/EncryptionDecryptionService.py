@@ -46,7 +46,7 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
         nonce = attachments[1]['data']
 
         for attachment in attachments:
-            attachment['data'] = EncryptionDecryption._chacha20_decrypt(attachment['data'], chacha20_key, nonce)
+            attachment['data'] = EncryptionDecryption.chacha20_decrypt(attachment['data'], chacha20_key, nonce)
 
         return attachments
 
@@ -65,8 +65,8 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
         # encrypt files
         for f in attachments or []:
             encrypted_attachments.append({'filename': f['filename'],
-                                          'data': EncryptionDecryption._chacha20_encrypt(f['data'], chacha20_key,
-                                                                                         nonce)})
+                                          'data': EncryptionDecryption.chacha20_encrypt(f['data'], chacha20_key,
+                                                                                        nonce)})
         return encrypted_attachments
 
     @staticmethod
@@ -75,7 +75,7 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
         mail_bin = mail.encode(encode_type)
         chacha20_key, nonce = EncryptionDecryption._generate_chanchan20_key()
         # encrypt mail using chacha20 with new generated chacha20key
-        ct_mail = EncryptionDecryption._chacha20_encrypt(mail_bin, chacha20_key, nonce)
+        ct_mail = EncryptionDecryption.chacha20_encrypt(mail_bin, chacha20_key, nonce)
         # encrypt chacha20 key
         encrypted_chacha20_key = EncryptionDecryption._rsa_encrypt(chacha20_key, public_key)
         # return encrypted mail with encrypted  chacha20key as header
@@ -97,14 +97,14 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
         return rsa.decrypt(ct_message, privatekey)
 
     @staticmethod
-    def _chacha20_encrypt(message, key, nonce):
+    def chacha20_encrypt(message, key, nonce):
         cipher = Cipher(algorithms.ChaCha20(key, nonce), mode=None, backend=default_backend())
         encryptor = cipher.encryptor()
         ct_mail = encryptor.update(message)
         return ct_mail
 
     @staticmethod
-    def _chacha20_decrypt(ct_message, key, nonce):
+    def chacha20_decrypt(ct_message, key, nonce):
         cipher = Cipher(algorithms.ChaCha20(key, nonce), mode=None, backend=default_backend())
         decryptor = cipher.decryptor()
         message = decryptor.update(ct_message)
@@ -122,7 +122,7 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
 
         chacha20_key = EncryptionDecryption._rsa_decrypt(ct_chacha20_key, private_key)
 
-        mail_bin = EncryptionDecryption._chacha20_decrypt(ct_mail, chacha20_key, nonce)
+        mail_bin = EncryptionDecryption.chacha20_decrypt(ct_mail, chacha20_key, nonce)
         return mail_bin.decode(encode_type)
 
 
