@@ -33,7 +33,7 @@ class Ui_Dialog(object):
         self.alert = alert_win("Wrong server Config.")
 
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(200, 230, 200, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(210, 230, 200, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
@@ -75,7 +75,6 @@ class Ui_Dialog(object):
         self.label_sus.setObjectName("label_sus")
         self.label_sus.setPixmap(pic_sus)
         self.label_sus.resize(pic_sus.width(), pic_sus.height())
-
         self.tabWidget.addTab(self.tab, "")
 
         self.tab_2 = QtWidgets.QWidget()
@@ -95,6 +94,28 @@ class Ui_Dialog(object):
         self.lineEdit_sp.setObjectName("lineEdit_sp")
         self.tabWidget.addTab(self.tab_2, "")
 
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.label_unlock = QtWidgets.QLabel(self.tab_3)
+        self.lineEdit_pwd_old = QtWidgets.QLineEdit(self.tab_3)
+        self.lineEdit_pwd_old.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.lineEdit_pwd_old.setGeometry(QtCore.QRect(100, 30, 250, 32))
+        self.lineEdit_pwd_old.setObjectName("lineEdit_pwd_old")
+        self.lineEdit_pwd_new1 = QtWidgets.QLineEdit(self.tab_3)
+        self.lineEdit_pwd_new1.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.lineEdit_pwd_new1.setGeometry(QtCore.QRect(100, 80, 250, 32))
+        self.lineEdit_pwd_new1.setObjectName("lineEdit_pwd_new1")
+        self.lineEdit_pwd_new2 = QtWidgets.QLineEdit(self.tab_3)
+        self.lineEdit_pwd_new2.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.lineEdit_pwd_new2.setGeometry(QtCore.QRect(100, 130, 250, 32))
+        self.lineEdit_pwd_new2.setObjectName("lineEdit_pwd_new2")
+
+        self.apply_button = QtWidgets.QPushButton(self.tab_3)
+        self.apply_button.setGeometry(QtCore.QRect(450, 130, 100, 32))
+        self.apply_button.setObjectName("apply_button")
+        self.apply_button.clicked.connect(Dialog.apply_lockpwd)
+        self.tabWidget.addTab(self.tab_3, "")
+
         self.retranslateUi(Dialog)
         self.tabWidget.setCurrentIndex(0)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -108,7 +129,7 @@ class Ui_Dialog(object):
         font14.setFamily("等线")
         font14.setPointSize(14)
 
-        Dialog.setWindowTitle(_translate("Dialog", "Mail server Setting"))
+        Dialog.setWindowTitle(_translate("Dialog", "Setting"))
         self.qq_button.setText(_translate("Dialog", "QQ"))
         self.r163_button.setText(_translate("Dialog", "163"))
         self.sustech_button.setText(_translate("Dialog", "SUSTech"))
@@ -118,12 +139,22 @@ class Ui_Dialog(object):
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog", "Fast setting"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "Custom setting"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog", "Unlock password"))
         self.tabWidget.setFont(font14)
 
         self.lineEdit_is.setPlaceholderText(_translate("Dialog", "IMAP server"))
         self.lineEdit_ss.setPlaceholderText(_translate("Dialog", "SMTP server"))
         self.lineEdit_ip.setPlaceholderText(_translate("Dialog", "IMAP port"))
         self.lineEdit_sp.setPlaceholderText(_translate("Dialog", "SMTP port"))
+
+        self.lineEdit_pwd_old.setFont(font14)
+        self.lineEdit_pwd_new1.setFont(font14)
+        self.lineEdit_pwd_new2.setFont(font14)
+        self.lineEdit_pwd_old.setPlaceholderText(_translate("Dialog", "Old password"))
+        self.lineEdit_pwd_new1.setPlaceholderText(_translate("Dialog", "New password"))
+        self.lineEdit_pwd_new2.setPlaceholderText(_translate("Dialog", "Repeat new password"))
+        self.apply_button.setFont(font14)
+        self.apply_button.setText("Apply")
 
 
 class config_win(QtWidgets.QWidget, Ui_Dialog):
@@ -132,6 +163,7 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
         self.con_win = Ui_Dialog()  # The name of my top level object is MainWindow
         self.con_win.setupUi(self)
         self.user_config = {}
+        self.alert_win = alert_win("New passwords should be same.")
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -176,6 +208,24 @@ class config_win(QtWidgets.QWidget, Ui_Dialog):
 
     def reject(self):
         self.close()
+
+    def apply_lockpwd(self):
+        old = self.con_win.lineEdit_pwd_old.text().strip()
+        new1 = self.con_win.lineEdit_pwd_new1.text().strip()
+        new2 = self.con_win.lineEdit_pwd_new2.text().strip()
+        if old:
+            if new1 != new2:
+                self.alert_win.exec_()
+                self.clear_pwd()
+            else:
+                print(new1)
+
+    def clear_pwd(self):
+        self.con_win.lineEdit_pwd_old.clear()
+        self.con_win.lineEdit_pwd_new1.clear()
+        self.con_win.lineEdit_pwd_new2.clear()
+
+
 
 
 if __name__ == '__main__':

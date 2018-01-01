@@ -9,14 +9,15 @@ class Ui_add_contact_Dialog(object):
         Dialog.setFixedSize(400, 300)
 
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(0, 60, 400, 32))
+        self.label.setGeometry(QtCore.QRect(0, 40, 400, 32))
         self.label.setObjectName("label")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.textEdit = QtWidgets.QTextEdit(Dialog)
-        self.textEdit.setGeometry(QtCore.QRect(50, 100, 300, 120))
-        self.textEdit.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)  # 自动换行
-        self.textEdit.setObjectName("textEdit")
+        self.name_lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.name_lineEdit.setGeometry(QtCore.QRect(50, 100, 290, 32))
+
+        self.email_lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.email_lineEdit.setGeometry(QtCore.QRect(50, 150, 290, 32))
 
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(10, 240, 340, 32))
@@ -34,18 +35,19 @@ class Ui_add_contact_Dialog(object):
         font12.setFamily("等线")
         font12.setPointSize(12)
 
-        font14_b = QtGui.QFont()
-        font14_b.setFamily("等线")
-        font14_b.setPointSize(14)
-        font14_b.setBold(True)
+        font16_b = QtGui.QFont()
+        font16_b.setFamily("等线")
+        font16_b.setPointSize(16)
+        font16_b.setBold(True)
 
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Add new contact"))
-        self.label.setText(_translate("Dialog", "Add new contact"))
-        self.label.setFont(font14_b)
-        self.textEdit.setFont(font12)
-        self.textEdit.setPlaceholderText(
-            "Contact Email address (Semicolon separated)\nContact_a@cs.com;\nContact_b@cs.com;")
+        Dialog.setWindowTitle(_translate("Dialog", "Add contact"))
+        self.label.setText(_translate("Dialog", "Add contact"))
+        self.label.setFont(font16_b)
+        self.name_lineEdit.setFont(font12)
+        self.email_lineEdit.setFont(font12)
+        self.name_lineEdit.setPlaceholderText("Name")
+        self.email_lineEdit.setPlaceholderText("Email account")
         self.buttonBox.setFont(font12)
 
 
@@ -54,20 +56,23 @@ class add_contact_win(QtWidgets.QDialog, Ui_add_contact_Dialog):
         super().__init__()
         self.add_win = Ui_add_contact_Dialog()
         self.add_win.setupUi(self)
-        self.new_contact = None
+        self.new_contact = {}
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
     def ok(self):
-        self.new_contact = self.add_win.textEdit.toPlainText()
+        self.new_contact["name"] = self.add_win.name_lineEdit.text()
+        self.new_contact["email"] = self.add_win.email_lineEdit.text()
+        # print(self.new_contact)
         self.accept()
 
     def get_newcontact(self):
         temp = self.new_contact
-        self.new_contact = None
-        self.add_win.textEdit.clear()
+        self.new_contact = {}
+        self.add_win.name_lineEdit.clear()
+        self.add_win.email_lineEdit.clear()
         return temp
 
 
