@@ -8,8 +8,6 @@ class Ui_Login(object):
         Login.resize(500, 340)
         Login.setMinimumSize(QtCore.QSize(500, 340))
         Login.setMaximumSize(QtCore.QSize(500, 340))
-        self.account_lineEdit = QtWidgets.QLineEdit(Login)
-        self.account_lineEdit.setGeometry(QtCore.QRect(100, 120, 290, 40))
 
         font12 = QtGui.QFont()
         font12.setFamily("等线")
@@ -18,6 +16,8 @@ class Ui_Login(object):
         font16 = QtGui.QFont()
         font16.setFamily("等线")
         font16.setPointSize(16)
+        self.account_lineEdit = QtWidgets.QLineEdit(Login)
+        self.account_lineEdit.setGeometry(QtCore.QRect(100, 120, 290, 40))
         self.account_lineEdit.setFont(font16)
         self.account_lineEdit.setText("")
         self.account_lineEdit.setObjectName("account_lineEdit")

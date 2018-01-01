@@ -2,6 +2,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from UI.add_contact import *
+from UI.create_group import *
 from UI.chat_log import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -18,18 +19,48 @@ class Ui_MainWindow(object):
         MainWindow.setMaximumSize(QtCore.QSize(960, 620))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.text_display_widget = QtWidgets.QWidget(self.centralwidget)
-        self.text_display_widget.setGeometry(QtCore.QRect(270, 10, 680, 510))
-        self.text_display_widget.setObjectName("text_display_widget")
-        self.right_verticalLayout = QtWidgets.QVBoxLayout(self.text_display_widget)
+
+        self.left_verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.left_verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 250, 600))
+        self.left_verticalLayoutWidget.setObjectName("left_verticalLayoutWidget")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.left_verticalLayoutWidget)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+
+        self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
+        self.listWidget.setObjectName("listWidget")
+        self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget.customContextMenuRequested.connect(MainWindow.right_click_menu)
+        self.listWidget.itemClicked.connect(MainWindow.switch_contact)
+        self.verticalLayout_2.addWidget(self.listWidget)
+
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+
+        self.new_contact_button = QtWidgets.QPushButton(self.left_verticalLayoutWidget)
+        self.new_contact_button.setObjectName("new_contact_button")
+        self.new_contact_button.clicked.connect(MainWindow.new_contact)
+        self.horizontalLayout.addWidget(self.new_contact_button)
+
+        self.group_chat_Button = QtWidgets.QPushButton(self.left_verticalLayoutWidget)
+        self.group_chat_Button.setObjectName("group_chat_Button")
+        self.group_chat_Button.clicked.connect(MainWindow.creat_group)
+        self.horizontalLayout.addWidget(self.group_chat_Button)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+
+
+        self.right_verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.right_verticalLayoutWidget.setGeometry(QtCore.QRect(270, 10, 680, 510))
+        self.right_verticalLayoutWidget.setObjectName("right_verticalLayoutWidget")
+        self.right_verticalLayout = QtWidgets.QVBoxLayout(self.right_verticalLayoutWidget)
         self.right_verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.right_verticalLayout.setObjectName("right_verticalLayout")
-        self.friend_name_label = QtWidgets.QLabel(self.text_display_widget)
+        self.friend_name_label = QtWidgets.QLabel(self.right_verticalLayoutWidget)
         self.friend_name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.friend_name_label.setObjectName("friend_name_label")
         self.right_verticalLayout.addWidget(self.friend_name_label)
 
-        self.textBrowser = QtWidgets.QTextBrowser(self.text_display_widget)
+        self.textBrowser = QtWidgets.QTextBrowser(self.right_verticalLayoutWidget)
         self.textBrowser.setObjectName("textBrowser")
         self.right_verticalLayout.addWidget(self.textBrowser)
 
@@ -46,7 +77,6 @@ class Ui_MainWindow(object):
         self.send_button.setIcon(send_fig)
         self.send_button.setObjectName("send_button")
         self.send_button.clicked.connect(MainWindow.send_mess)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         up_fig = QtGui.QIcon()
         up_fig.addPixmap(QtGui.QPixmap('resource\\up_fig.png').scaledToHeight(30, QtCore.Qt.SmoothTransformation),
@@ -56,7 +86,6 @@ class Ui_MainWindow(object):
         self.up_pic_button.setIcon(up_fig)
         self.up_pic_button.setObjectName("up_pic_button")
         self.up_pic_button.clicked.connect(MainWindow.send_pic)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         up_file = QtGui.QIcon()
         up_file.addPixmap(QtGui.QPixmap('resource\\up_file.png').scaledToHeight(30, QtCore.Qt.SmoothTransformation),
@@ -66,26 +95,6 @@ class Ui_MainWindow(object):
         self.up_file_button.setIcon(up_file)
         self.up_file_button.setObjectName("up_file_button")
         self.up_file_button.clicked.connect(MainWindow.send_file)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-        self.left_verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.left_verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 250, 600))
-        self.left_verticalLayoutWidget.setObjectName("left_verticalLayoutWidget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.left_verticalLayoutWidget)
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-
-        self.listWidget = QtWidgets.QListWidget(self.left_verticalLayoutWidget)
-        self.listWidget.setObjectName("listWidget")
-        self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.listWidget.customContextMenuRequested.connect(MainWindow.right_click_menu)
-        self.listWidget.itemClicked.connect(MainWindow.switch_contact)
-        self.verticalLayout_2.addWidget(self.listWidget)
-
-        self.new_contact_button = QtWidgets.QPushButton(self.left_verticalLayoutWidget)
-        self.new_contact_button.setObjectName("new_contact_button")
-        self.verticalLayout_2.addWidget(self.new_contact_button)
-        self.new_contact_button.clicked.connect(MainWindow.new_contact)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -104,8 +113,18 @@ class Ui_MainWindow(object):
 
         MainWindow.setWindowTitle("ChatRoom")
         self.listWidget.setFont(font12)
-        self.new_contact_button.setText("Create new contact")
+        # single_fig = QtGui.QIcon()
+        # single_fig.addPixmap(QtGui.QPixmap('resource\\single.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+        #                   QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # group_fig = QtGui.QIcon()
+        # group_fig.addPixmap(QtGui.QPixmap('resource\\group.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+        #                      QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.new_contact_button.setText("Add contact")
+        # self.new_contact_button.setIcon(single_fig)
         self.new_contact_button.setFont(font12)
+        self.group_chat_Button.setText("Creat group")
+        # self.group_chat_Button.setIcon(group_fig)
+        self.group_chat_Button.setFont(font12)
 
         # self.friend_name_label.setText("Friend name")
         self.friend_name_label.setFont(font16)
@@ -125,6 +144,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui = Ui_MainWindow()  # The name of my top level object is MainWindow
         self.map_ui.setupUi(self)
         self.add_win = add_contact_win()
+        self.add_group = create_group_win()
         self.messgae_handler = None
         self.contacts_log = {}
 
@@ -138,13 +158,27 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def new_contact(self):
         if self.add_win.exec_():
             user = self.add_win.get_newcontact()
-            self.contacts_log[user] = Chat_log(user)
+            print(user)
+            self.contacts_log[user["email"]] = Chat_log(user["email"], user["name"])
             print("add new user", user)
-            new_user = QListWidgetItem(user)
-            self.map_ui.friend_name_label.setText(user)
+            new_user = QListWidgetItem(user["name"])
+            self.map_ui.friend_name_label.setText(user["name"])
             self.map_ui.listWidget.insertItem(0, new_user)
             self.map_ui.listWidget.setCurrentItem(new_user)
             self.map_ui.textBrowser.clear()
+
+    def creat_group(self):
+        self.add_group.load_contact(self.get_contact_list())
+        if self.add_group.exec_():
+            print(self.add_group.re_dat)
+
+    def get_contact_list(self):
+        out = []
+        row_num = self.map_ui.listWidget.count()
+        for i in range(row_num):
+            item = self.map_ui.listWidget.item(i).text()
+            out.append(item)
+        return out
 
     def block_contact(self, pos):
         item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))

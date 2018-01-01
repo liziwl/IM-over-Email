@@ -3,7 +3,8 @@ import time as ti
 
 
 class Chat_log(object):
-    def __init__(self, email, uid=None):
+    def __init__(self, email, name=None, uid=None):
+        self.name = name
         self.email = email
         self.uid = uid
         self.log = []
