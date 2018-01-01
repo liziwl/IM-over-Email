@@ -35,8 +35,13 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
             # 判断用户是否存在
             if not self.mainDao.is_account_exists(account):
                 self.user_config = self.conf.user_config
+                if not self.user_config:
+                    self.try_setting()
+                    return
                 self.user_config["account"] = account
                 self.user_config["password"] = pwd
+                # TODO: get lock password
+                self.user_config['lock_password'] = '123456'
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],

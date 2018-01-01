@@ -32,12 +32,12 @@ class MainDao(object):
             c = self.conn.cursor()
             c.execute(
                 "INSERT INTO users(account, lock_password, "
-                " smtp_server, smtp_port, imap_server, imap_port) "
+                "smtp_server, smtp_port, imap_server, imap_port) "
                 "VALUES(?, ?, ?, ?, ?, ?);",
-                [(
+                [
                     user.account, user.lock_password,
                     user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
-                )]
+                ]
             )
             self.conn.commit()
 
@@ -64,7 +64,7 @@ class MainDao(object):
 if __name__ == '__main__':
     mainDao = MainDao('../main.db')
     mainDao.insert_user(
-        User('pengym_111@163.com', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
+        User('1048217874@qq.com', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
     )
     result = mainDao.get_user_info("pengym_111@163.com")
     print(result.account)
