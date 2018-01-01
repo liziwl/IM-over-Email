@@ -8,6 +8,9 @@ import os
 import Main
 import threading
 import time
+from Main.model.message import Message
+import threading
+from Main.dao.user_dao import UserDao
 
 # !! just fot test
 # we need this from KeyService
@@ -22,6 +25,7 @@ class MessageServiceInterface:
     user_config = None
     mailservice = None
     listener = None
+    UserDao = None
 
     # send a message to several accounts.
     def send_message(self, accounts, message):
@@ -35,23 +39,61 @@ class MessageServiceInterface:
     def get_unseen_message(self, uuid):
         raise NotImplementedError
 
-    def notify(self, listener):
+    def notify(self, listener, messages):
         raise NotImplementedError
 
 
 class MessageService(MessageServiceInterface):
 
+    def get_unseen_message(self, uuid):
+        mails = self.mailservice.get_unseen_mails_in_folder_with_subject('INBOX', str(uuid))
+        messages = []
+        for mail in mails:
+            mail = self._decrypt_mail(mail)
+            if mail is not None:
+                message = Main.model.message.Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
+                messages.append(message)
+        return messages
+
+    def _listen_message(self):
+        while True:
+            new_messages = self._get_unseen_message()
+            time.sleep(5)
+            print(new_messages)
+            if len(new_messages) != 0:
+                self.notify(listener=self.listener, messages=new_messages)
+                for message in new_messages:
+                    self.userdao.add_messages(message)
+
+    def _get_unseen_message(self):
+        mails = self.mailservice.get_unseen_mails_in_folder('INBOX')
+        messages = []
+        for mail in mails:
+            mail = self._decrypt_mail(mail)
+            if mail is not None:
+                message = Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
+                messages.append(message)
+        return messages
+        pass
+
     def get_all_messages(self, uuid):
+        # get all message from data base dao
+        return self.userdao.get_group_messages(uuid)
 
+    def notify(self, listener, messages):
+        # to do
+        # listener.update(messages)
+        print('notifyed')
         pass
 
-    def notify(self, listener):
-        pass
-
-    def __init__(self, user_config, listener):
+    def __init__(self, user_config, listener, userdao):
         self.user_config = user_config
         self.load_privkey(None)
         self.mailservice = MailService(user_config)
+        self.userdao = userdao
+
+        listen = threading.Thread(target=self._listen_message, args=())
+        listen.start()
 
     # need to change just return the private key object of this user
     def load_privkey(self, key_path):
@@ -62,13 +104,20 @@ class MessageService(MessageServiceInterface):
             f.close()
         self.privkey = KeyService.load_privkey(key)
         '''
-
-        # (pubkey, privkey) = rsa.newkeys(512)
         self.privkey = privkey
 
     # hash function
 
     def _getuuid(self, accounts):
+        accounts_name = copy.deepcopy(list(accounts))
+        accounts_name.append(self.user_config['account'])
+        accounts_name = sorted(accounts_name)
+        names = ''
+        for name in accounts_name:
+            names = name + names
+        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
+
+    def getuuid(self, accounts):
         accounts_name = copy.deepcopy(list(accounts))
         accounts_name.append(self.user_config['account'])
         accounts_name = sorted(accounts_name)
@@ -102,6 +151,7 @@ class MessageService(MessageServiceInterface):
         uid = self._getuuid(accounts)
         for recevier in accounts:
             self._send_message_single(recevier, accounts, content, [], uid)
+        self.userdao.add_messages(message)
 
     def _decrypt_mail(self, mail):
         try:
@@ -122,14 +172,14 @@ class MessageService(MessageServiceInterface):
                 msg.append(de_mail)
         return msg
 
-    def get_unseen_message(self, folder):
-        msg = []
-        mails = self.mailservice.get_unseen_mails_in_folder(folder)
-        for mail in mails:
-            de_mail = self._decrypt_mail(mail)
-            if de_mail is not None:
-                msg.append(de_mail)
-        return msg
+    # def get_unseen_message(self, folder):
+    #     msg = []
+    #     mails = self.mailservice.get_unseen_mails_in_folder(folder)
+    #     for mail in mails:
+    #         de_mail = self._decrypt_mail(mail)
+    #         if de_mail is not None:
+    #             msg.append(de_mail)
+    #     return msg_in
 
     def get_unanswered_message(self, folder):
         msg = []
@@ -194,12 +244,20 @@ if __name__ == '__main__':
         "smtp_port": 25
     }
 
-    messageserver = MessageService(user_config)
+    userdao = UserDao('penym_111@163.com','../Main/test.db')
+    messageserver = MessageService(user_config, None,userdao)
 
     # please use your e-mail to try this :)
-    messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
+    message = Main.model.message.Message(None, 'hello', None, None)
+    messageserver.send_message(['pengym_111@163.com'], message)
+    # messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
 
-    messageserver.get_unseen_message('INBOX')
+    # messageserver.get_unseen_message('INBOX')
 
-    print(messageserver.get_all_conversion(['pengym_111@163.com']))
+    uid = messageserver.getuuid(['pengym_111@163.com'])
+    time.sleep(3)
+    print(messageserver.get_unseen_message(uid))
+    print(messageserver.get_all_messages(uid))
+
+    # print(messageserver.get_all_conversion(['pengym_111@163.com']))
     # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)

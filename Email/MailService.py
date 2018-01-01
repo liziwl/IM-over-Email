@@ -79,13 +79,16 @@ class MailService(MailServiceInterface):
         return mails
 
     def get_unseen_mails_in_folder(self, folder):
-        mails = self.mailbox.folder(folder).emails(self.query_builder.unanswered().unseen())
+        mails = self.mailbox.folder(folder).emails(self.query_builder.unseen())
+
         if mails is False:
             return None
+        for mail in mails:
+            mail.mark(['seen'])
         return mails
 
     def get_unanswered_mails_in_folder(self, folder):
-        mails = self.mailbox.folder(folder).emails(self.query_builder.unanswered().unanswered())
+        mails = self.mailbox.folder(folder).emails(self.query_builder.unanswered())
         if mails is False:
             return None
         return mails
@@ -95,9 +98,19 @@ class MailService(MailServiceInterface):
     """
 
     def get_mails_in_folder_with_subject(self, folder, subject):
-        mails = self.mailbox.folder(folder).emails(self.query_builder.subject(subject))
-        if mails is False:
-            return None
+        all_mails = self.mailbox.folder(folder).emails()
+        mails = []
+        for mail in all_mails or []:
+            if mail['subject'] == subject:
+                mails.append(mail)
+        return mails
+
+    def get_unseen_mails_in_folder_with_subject(self, folder, subject):
+        all_mails = self.mailbox.folder(folder).emails(self.query_builder.unseen())
+        mails = []
+        for mail in all_mails or []:
+            if mail['subject'] == subject:
+                mails.append(mail)
         return mails
 
     def send_mail(self, receiver, receivers, subject, content, attachments=None):
