@@ -3,6 +3,7 @@ import sqlite3
 
 from Main.model.contact import Contact
 from Main.model.group import Group
+from Main.model.message import Message
 
 
 class UserDao(object):
@@ -107,12 +108,33 @@ class UserDao(object):
         members = [
            Contact(r[0], r[1], r[2], r[3] == 1) for r in c.fetchall()
         ]
-        return Group(group_name, members)
+        return Group(group_name, members, uuid)
+
+    def add_messages(self, message):
+        c = self.conn.cursor()
+        c.execute(
+            "INSERT INTO messages(group_, content, date_, sender) "
+            "VALUES (?, ?, ?, ?)", [(message.group, message.content, message.date, message.sender)]
+        )
+
+    def get_group_messages(self, group_uuid):
+        messages = list()
+        c = self.conn.cursor()
+        c.execute(
+            "SELECT group_, content, date_, sender FROM messages "
+            "WHERE group_ = ?", [group_uuid]
+        )
+        for m in c.fetchall():
+            messages.append(Message(m[0], m[1], [2], m[3]))
+        return messages
 
 
 if __name__ == '__main__':
     userDao = UserDao('pengym_111@163.com', '../test.db')
-    # userDao.add_group('面向对象讨论组', ('12@qq.com', '1@qq.com'))
+    userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
     for group in userDao.get_groups():
         for member in group.members:
             print(member.account)
+
+        for message in userDao.get_group_messages(group.group_uuid):
+            print(message)
