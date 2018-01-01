@@ -5,7 +5,11 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-from Main.utils import set_current_user, get_current_user
+from Main.utils import set_current_user
+from Main.dao.user_dao import UserDao
+
+from Security.KeyService import KeyService
+import os.path
 
 class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
@@ -40,8 +44,14 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     return
                 self.user_config["account"] = account
                 self.user_config["password"] = pwd
-                # TODO: get lock password
+                # TODO: set lock password
                 self.user_config['lock_password'] = '123456'
+                # 生成用户目录
+                os.mkdir(account)
+                # 生成钥匙
+                KeyService.generate_keys(account, self.user_config['lock_password'])
+                # 生成用户数据库
+                userDao = UserDao(account + "/user.db", new=True)
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],

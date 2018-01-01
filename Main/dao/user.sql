@@ -1,18 +1,3 @@
-/*
- Navicat Premium Data Transfer
-
- Source Server         : IM user db template
- Source Server Type    : SQLite
- Source Server Version : 3012001
- Source Schema         : main
-
- Target Server Type    : SQLite
- Target Server Version : 3012001
- File Encoding         : 65001
-
- Date: 01/01/2018 18:51:43
-*/
-
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
