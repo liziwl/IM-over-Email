@@ -5,7 +5,7 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-import configparser
+from Main.utils import set_current_user, get_current_user
 
 class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
@@ -52,8 +52,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_port']
                 )
                 self.mainDao.insert_user(new_user)
-            self.set_current_user(account)
-            print(self.get_current_user())
+            set_current_user(account)
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
             if not self.chat_win.isVisible():
@@ -63,19 +62,6 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
 
     def try_setting(self):
         self.conf.show()
-
-    def get_current_user(self):
-        parser = configparser.ConfigParser()
-        parser.read("../Main/conf.ini")
-        current_user = parser.get("user", "current_user")
-        return current_user
-
-    def set_current_user(self, account):
-        parser = configparser.ConfigParser()
-        parser.read("../Main/conf.ini")
-        parser.set("user", "current_user", account)
-        parser.write(open('../Main/conf.ini', 'w'))
-
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
