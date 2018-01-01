@@ -4,9 +4,10 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 
-class LoginUI(QtWidgets.QWidget, LoginUI):
+
+class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
-        super(LoginUI, self).__init__()
+        super(Login_win, self).__init__()
         self.setupUi(self)
         self.chat_win = chatwin()
         self.conf = config_win()
@@ -48,6 +49,6 @@ class LoginUI(QtWidgets.QWidget, LoginUI):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    ex = LoginUI()
+    ex = Login_win()
     ex.show()
     sys.exit(app.exec_())
