@@ -12,7 +12,7 @@ class MainDao(object):
             self.conn = sqlite3.connect(path)
             if not has_main_db:
                 c = self.conn.cursor()
-                c.executescript('database/main.sql')
+                c.executescript('database/user.sql')
         except Exception as e:
             print("Unable to connect to main database")
             exit(1)
