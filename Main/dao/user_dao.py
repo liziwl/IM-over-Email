@@ -115,15 +115,18 @@ class UserDao(object):
         c = self.conn.cursor()
         c.execute(
             "INSERT INTO messages(group_, content, date_, sender) "
-            "VALUES (?, ?, ?, ?)", [(message.group, message.content, message.date, message.sender)]
+            "VALUES (?, ?, ?, ?)", [message.group, message.content, message.date, message.sender]
         )
+        self.conn.commit()
 
     def get_group_messages(self, group_uuid):
         messages = list()
         c = self.conn.cursor()
         c.execute(
             "SELECT group_, content, date_, sender FROM messages "
-            "WHERE group_ = ?", [group_uuid]
+            "WHERE group_ = ? "
+            "ORDER BY date_"
+            , [group_uuid]
         )
         for m in c.fetchall():
             messages.append(Message(m[0], m[1], [2], m[3]))
@@ -141,3 +144,7 @@ if __name__ == '__main__':
         for message in userDao.get_group_messages(group.group_uuid):
             print(message)
 
+
+    # please use your e-mail to try this :)
+    message = Message("", 'hello', "", "pengym_111@163.com")
+    userDao.add_messages(message)
