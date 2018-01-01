@@ -90,6 +90,16 @@ class MailService(MailServiceInterface):
             return None
         return mails
 
+    """ Search for  emails from folder
+         with "subject"(uuid) in subject
+    """
+
+    def get_mails_in_folder_with_subject(self, folder, subject):
+        mails = self.mailbox.folder(folder).emails(self.query_builder.subject(subject))
+        if mails is False:
+            return None
+        return mails
+
     def send_mail(self, receiver, receivers, subject, content, attachments=None):
         account = self.user_config['account']
         password = self.user_config['password']

@@ -1,12 +1,12 @@
 import rsa
 import gnupg
-import pem
+
 
 
 class KeyServiceInterface:
     # get the AES public key of a account
     @staticmethod
-    def get_public_key(account):
+    def getPublickey(account):
 
         raise NotImplementedError
 
@@ -46,7 +46,6 @@ class KeyService(KeyServiceInterface):
     @staticmethod
     def check_publickey(account, public_key):
         compare_uid = "<"+account+">"
-        print(compare_uid)
         gpg = gnupg.GPG()
         user_keys = gpg.list_keys()
         for key_array in user_keys:
@@ -57,13 +56,14 @@ class KeyService(KeyServiceInterface):
                     return True
                 else:
                     return False
-        pass
 
     @staticmethod
-    def generate_keys():
-        gpg = gnupg.GPG()
-        user_input = gpg.gen_key_input(name_real=NAME, name_email=NAME_EMAIL, passphrase=PASSPHRASE)
+    def generate_keys(name, email_address, password):
+        gpg = gnupg.GPG(homedir='~/.gnupg')
+        user_input = gpg.gen_key_input(name_real=name, name_email=email_address, passphrase=password)
         user_key = gpg.gen_key(user_input)
+        # send public key to server
+        gpg.send_keys('hkp://pgp.mit.edu', user_key.key_id)
         return user_key
 
     @staticmethod
@@ -73,14 +73,27 @@ class KeyService(KeyServiceInterface):
         public_key = gpg.export_keys(key_information[0]["keyid"])
         return public_key
 
+    @staticmethod
+    def getPrivateKey(account):
+        compare_uid = "<" + account + ">"
+        gpg = gnupg.GPG()
+        user_keys = gpg.list_keys()
+        for key_array in user_keys:
+            uid = key_array["uids"][0].split(' ', 1)[1]
+            if compare_uid == uid:
+                private_key_fingerprint=key_array["fingerprint"]
+                private_key=gpg.export_keys(private_key_fingerprint,True)
+        return private_key
 
     @staticmethod
-    def save_privkey(key, format='PEM'):
-        return key.save_pkcs1(format=format)
+    def save_privkey(account, format='PEM'):
+        private_key=KeyService.getPrivateKey(account)
+        return private_key.save_pkcs1(format=format)
 
     @staticmethod
-    def save_pubkey(key, format='PEM'):
-        return key.save_pkcs1(format=format)
+    def save_pubkey(account, format='PEM'):
+        pubkey = KeyService.getPublicKey(account)
+        return pubkey.save_pkcs1(format=format)
 
     @staticmethod
     def load_privkey(key, format='PEM'):
@@ -92,21 +105,7 @@ class KeyService(KeyServiceInterface):
 
 
 if __name__ == '__main__':
-    account = 'mintmao@outlook.com'
 
-    NEW_KEY_DIR = './KEY'
-    NAME = 'helloworld'
-    NAME_COMMENT = None
-    NAME_EMAIL = 'helloworld@mail.com'
-    EXPIRE_DATE = None
-    PASSPHRASE =None
-    KEY_TYPE = 'RSA'
-    KEY_USAGE = 'cert'
-    KEY_LENGTH = 2048
-    SUBKEY_TYPE = 'RSA'
-    SUBKEY_USAGE = 'SIGN'
-    SUBKEY_LEGNT = 4096
-    KEYSERVER = 'hkp://pgp.mit.edu'
     print(KeyService.generate_keys())
     # from the public key object to binary file
     # pem_pubkey = KeyService.save_pubkey(pubkey)
