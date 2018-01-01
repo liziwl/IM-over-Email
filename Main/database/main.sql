@@ -10,10 +10,16 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 30/12/2017 14:43:01
+ Date: 01/01/2018 15:48:59
 */
 
 PRAGMA foreign_keys = false;
+
+-- ----------------------------
+-- Table structure for sqlite_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS "sqlite_sequence";
+CREATE TABLE sqlite_sequence(name,seq);
 
 -- ----------------------------
 -- Table structure for users
@@ -21,10 +27,12 @@ PRAGMA foreign_keys = false;
 DROP TABLE IF EXISTS "users";
 CREATE TABLE "users" (
   "account" text,
-  "uuid" text,
   "lock_password" text,
   "private_key" text,
-  "public_key" text,
+  "smtp_server" text,
+  "smtp_port" integer,
+  "imap_server" text,
+  "imap_port" integer,
   PRIMARY KEY ("account")
 );
 
