@@ -4,8 +4,7 @@ from Main.model.user import User
 
 
 class MainDao(object):
-    def __init__(self):
-        path = '../main.db'
+    def __init__(self, path):
         # If main database not exists, create it with sql
         has_main_db = os.path.isfile(path)
         try:
@@ -32,25 +31,25 @@ class MainDao(object):
         if not self.is_account_exists(user.account):
             c = self.conn.cursor()
             c.execute(
-                "INSERT INTO users(account, lock_password, private_key,"
-                " smtp_server, smtp_port, imap_server, imap_port) "
-                "VALUES(?, ?, ?, ?, ?, ?, ?);",
-                [(
-                    user.account, user.lock_password, user.private_key,
+                "INSERT INTO users(account, lock_password, "
+                "smtp_server, smtp_port, imap_server, imap_port) "
+                "VALUES(?, ?, ?, ?, ?, ?);",
+                [
+                    user.account, user.lock_password,
                     user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
-                )]
+                ]
             )
             self.conn.commit()
 
     def get_user_info(self, account):
         c = self.conn.cursor()
         c.execute(
-            "SELECT account, lock_password, private_key, smtp_server, smtp_port, imap_server, imap_port "
+            "SELECT account, lock_password, smtp_server, smtp_port, imap_server, imap_port "
             "FROM users "
             "WHERE account = ?", [account]
         )
         result = c.fetchone()
-        return User(result[0], result[1], result[2], result[3], result[4], result[5], result[6])
+        return User(result[0], result[1], result[2], result[3], result[4], result[5])
 
     def verify_user(self, account, lock_password):
         c = self.conn.cursor()
@@ -63,9 +62,9 @@ class MainDao(object):
 
 
 if __name__ == '__main__':
-    mainDao = MainDao()
+    mainDao = MainDao('../main.db')
     mainDao.insert_user(
-        User('pengym_111@163.com', '123456', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
+        User('1048217874@qq.com', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
     )
     result = mainDao.get_user_info("pengym_111@163.com")
     print(result.account)
