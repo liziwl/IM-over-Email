@@ -2,6 +2,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
+from Main.dao.user_dao import UserDao
+from Main.utils import get_current_user
+
 
 class Ui_create_group_Dialog(object):
     def setupUi(self, Dialog):
@@ -94,8 +97,11 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    contacts = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
-    ex = create_group_win(contacts)
-    if ex.exec_():
-        print(ex.re_dat)
+    user = get_current_user()
+    userDao = UserDao(user.account + "/user.db")
+    contacts = userDao.get_contacts()
+    print(contacts)
+    # ex = create_group_win(contacts)
+    # if ex.exec_():
+    #     print(ex.re_dat)
     sys.exit(app.exec_())

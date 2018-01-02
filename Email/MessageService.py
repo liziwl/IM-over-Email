@@ -172,7 +172,7 @@ if __name__ == '__main__':
         "smtp_port": 25
     }
 
-    userdao = UserDao('penym_111@163.com', '../Main/test.db')
+    userdao = UserDao('penym_111@163.com', '../Main/user.db')
     messageserver = MessageService(user_config, None, userdao)
 
     uid = messageserver.getuuid(['pengym_111@163.com'])
