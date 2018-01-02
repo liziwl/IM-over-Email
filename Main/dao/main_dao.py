@@ -2,17 +2,20 @@ import sqlite3
 import os.path
 from Main.model.user import User
 
+CURRENT_DIR = os.path.dirname(__file__)
+PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
+
 
 class MainDao(object):
-    def __init__(self, path):
+    def __init__(self):
+        path = os.path.join(PARENT_DIR, 'main.db')
         # If main database not exists, create it with sql
         has_main_db = os.path.isfile(path)
         try:
             self.conn = sqlite3.connect(path)
             if not has_main_db:
                 c = self.conn.cursor()
-                current_dir = os.path.dirname(__file__)
-                script_path = os.path.join(current_dir, 'main.sql')
+                script_path = os.path.join(CURRENT_DIR, 'main.sql')
                 with open(script_path) as f:
                     c.executescript(f.read())
         except Exception as e:
@@ -65,7 +68,7 @@ class MainDao(object):
 
 
 if __name__ == '__main__':
-    mainDao = MainDao('../main.db')
+    mainDao = MainDao()
     mainDao.insert_user(
         User('kkk@qq.com', '123456', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
     )
