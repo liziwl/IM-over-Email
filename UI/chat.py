@@ -152,13 +152,19 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.ban_fig = QtGui.QIcon()
         self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
                                QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+        self.contact_uid = {}
+
+    def set_user(self):
         # TODO 单例模式
-        self.userdao = UserDao()
         self.current_email = utils.get_current_user().account
+        self.userdao = UserDao(self.current_email)
+
         print(self.current_email)
         self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
+        self.add_group.set_user()
+
         # a map betwween uid and contact name
-        self.contact_uid = {}
 
     # show new messages
     def update_messages(self, messages):

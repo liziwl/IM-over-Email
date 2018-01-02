@@ -19,7 +19,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
         super(Login_win, self).__init__()
         self.setupUi(self)
-        self.chat_win = None
+        self.chat_win = chatwin()
         self.conf = config_win()
         self.alert = alert_win("Wrong Account or password.")
 
@@ -40,6 +40,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     return
                 else:
                     return
+            set_current_user(account)
             # 判断用户是否存在
             if not self.mainDao.is_account_exists(account):
                 self.user_config = self.conf.user_config
@@ -55,7 +56,8 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # 生成钥匙
                 KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 生成用户数据库
-                userDao = UserDao(new=True)
+                userDao = UserDao(account, new=True)
+
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],
@@ -67,13 +69,17 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_port']
                 )
                 self.mainDao.insert_user(new_user)
-            set_current_user(account)
+
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
-            self.init_login()
+            self.chat_win = chatwin()
+            if not self.chat_win.isVisible():
+                # self.chat_win.set_message_handler(self.message_handler)
+                self.chat_win.set_user()
+                self.chat_win.show()
+                self.close()
 
     def init_login(self):
-        self.chat_win = chatwin()
         if not self.chat_win.isVisible():
             # self.chat_win.set_message_handler(self.message_handler)
             self.chat_win.show()

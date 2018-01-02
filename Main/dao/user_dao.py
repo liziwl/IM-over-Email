@@ -9,9 +9,11 @@ import os
 
 
 class UserDao(object):
-    def __init__(self, new = False):
-        self.account = get_current_user().account
+    def __init__(self, account, new = False):
+        self.account = account
+        self.conn = None
         database_path = os.path.join(get_user_dir(self.account), 'user.db')
+        print(database_path)
         try:
             self.conn = sqlite3.connect(database_path)
             if new:
@@ -24,9 +26,6 @@ class UserDao(object):
             print(e)
             print('Unable to connect to user database')
             exit(1)
-
-    def __del__(self):
-        self.conn.close()
 
     def add_contact(self, contact):
         if not self.is_contact_exists(contact.account):
@@ -144,7 +143,7 @@ class UserDao(object):
 
 
 if __name__ == '__main__':
-    userDao = UserDao()
+    userDao = UserDao('pengym_111@163.com')
     userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
     userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
     for group in userDao.get_groups():

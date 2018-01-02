@@ -66,15 +66,15 @@ CREATE TABLE "messages" (
   CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- ----------------------------
--- Table structure for sqlite_sequence
--- ----------------------------
-DROP TABLE IF EXISTS "sqlite_sequence";
-CREATE TABLE sqlite_sequence(name,seq);
-
--- ----------------------------
--- Auto increment value for contacts
--- ----------------------------
-UPDATE "main"."sqlite_sequence" SET seq = 6 WHERE name = 'contacts';
+-- -- ----------------------------
+-- -- Table structure for sqlite_sequence
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS "sqlite_sequence";
+-- CREATE TABLE sqlite_sequence(name,seq);
+--
+-- -- ----------------------------
+-- -- Auto increment value for contacts
+-- -- ----------------------------
+-- UPDATE "main"."sqlite_sequence" SET seq = 6 WHERE name = 'contacts';
 
 PRAGMA foreign_keys = true;

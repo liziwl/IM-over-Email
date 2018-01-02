@@ -11,6 +11,7 @@ import time
 from Main.model.message import Message
 import threading
 from Main.dao.user_dao import UserDao
+from Security.KeyService import KeyService
 
 # !! just fot test
 # we need this from KeyService
@@ -49,6 +50,7 @@ class MessageService(MessageServiceInterface):
 
         self.load_privkey(None)
 
+        self.user = user
         self.user_config = {
             "account": user.account,
             # mail password
@@ -74,7 +76,8 @@ class MessageService(MessageServiceInterface):
             f.close()
         self.privkey = KeyService.load_privkey(key)
         '''
-        self.privkey = privkey
+        # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)
+        self.privkey = KeyService.getPrivateKey(self.user.account, "123456")
 
     def get_unseen_message(self, uuid):
         mails = self.mailservice.get_unseen_mails_in_folder_with_subject('INBOX', str(uuid))
@@ -129,7 +132,7 @@ class MessageService(MessageServiceInterface):
     # receiver : send to
     # receivers: 收件人
     def _send_message_single(self, receiver, receivers, message, binary_attachments, uuid):
-        # pubkey = KeyService.getPublicKey(account)
+        pubkey = KeyService.getPublicKey(receiver)
         encrypted_binary_files = EncryptionDecryption.encrypt_attachments(binary_attachments, public_key=pubkey)
         ct_message = EncryptionDecryption.encrypt_mail(message, pubkey)
         self.mailservice.send_mail(receiver, receivers, subject=uuid, content=ct_message,
