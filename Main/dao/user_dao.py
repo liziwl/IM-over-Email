@@ -156,5 +156,6 @@ if __name__ == '__main__':
 
 
     # please use your e-mail to try this :)
-    message = Message("", 'hello', "", "pengym_111@163.com")
-    userDao.add_messages(message)
+    # message = Message("", 'hello', "", "pengym_111@163.com")
+    # userDao.add_messages(message)
+    print(userDao.get_group_messages('5e93a675-b9b5-3a21-9af7-64f042a4aa63'))
