@@ -1,5 +1,5 @@
 class User(object):
-    def __init__(self, account, lock_password, password,
+    def __init__(self, account,  password, lock_password,
                  smtp_server, smtp_port, imap_server, imap_port):
         self.account = account
         self.password = password

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+
+from Main.model.contact import Contact
 from UI.add_contact import *
 from UI.create_group import *
 from UI.chat_log import *
@@ -11,6 +13,7 @@ import sys
 import time
 from Main import utils
 from Main.dao import main_dao
+from Security.KeyService import KeyService
 
 
 class Ui_MainWindow(object):
@@ -159,10 +162,9 @@ class chatwin(QMainWindow, Ui_MainWindow):
         # TODO 单例模式
         self.current_email = utils.get_current_user().account
         self.userdao = UserDao(self.current_email)
-
-        print(self.current_email)
         self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
         self.add_group.set_user()
+        self.groups = self.userdao.get_groups()
 
         # a map betwween uid and contact name
 
@@ -181,10 +183,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
-        # self.messgae_handler.send_message(['pengym_111@163.com'], 'hello2', ['..\\Email\\lenna.jpeg'])
-        # re = self.messgae_handler.get_unseen_message('INBOX')
-        # print(re)
-        # print(self.messgae_handler.get_all_conversion(['pengym_111@163.com']))
 
     def _getuuid(self, accounts):
         accounts_name = copy.deepcopy(list(accounts))
@@ -206,17 +204,18 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.contacts_log[uid] = Chat_log(user["email"], Chat_log.SINGLE, user["name"], uid=uid)
 
             self.contact_uid[user["name"]] = uid
-            self.contact_uid[uid] = user["name"]
+            self.contact_uid[uid] = user["email"]
+            # TODO add contact to database
+            pubkey = ""
+            name = user["name"]
+            trusted = False
+            is_blocked = False
+
+            contact = Contact(name, user["email"], pubkey, trusted, is_blocked)
+            self.userdao.add_contact(contact)
 
             print("add new user", user)
             self.insert_contact(user["name"])
-            # new_user = QListWidgetItem(user["name"])
-            #
-            # new_user.setIcon(self.single_fig)
-            # self.map_ui.friend_name_label.setText(user["name"])
-            # self.map_ui.listWidget.insertItem(0, new_user)
-            # self.map_ui.listWidget.setCurrentItem(new_user)
-            # self.map_ui.textBrowser.clear()
 
     def insert_contact(self, contact_name):
         new_user = QListWidgetItem(contact_name)
@@ -228,7 +227,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.textBrowser.clear()
 
     def creat_group(self):
-        self.add_group.load_contact(self.get_contact_list())
+        self.add_group.load_contact()
         if self.add_group.exec_():
             print(self.add_group.re_dat)
 
@@ -315,8 +314,11 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print(text)
         self.map_ui.textEdit.clear()
 
-        receivers = self.userdao.get_group(uid)
+        receivers = [self.contact_uid[uid]]
+        print(receivers)
         message = Message(uid, text, dt, self.current_email)
+        print('send message: ', message.content)
+        print('send to: ', receivers)
         self.messgae_handler.send_message(receivers, message)
 
     def send_pic(self):

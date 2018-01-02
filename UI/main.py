@@ -53,11 +53,11 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 self.user_config['lock_password'] = '123456'
                 # 生成用户目录
                 make_user_dir(account)
-                # 生成钥匙
-                KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 生成用户数据库
                 userDao = UserDao(account, new=True)
 
+                # 生成钥匙
+                KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],
@@ -72,7 +72,6 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
 
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
-            self.chat_win = chatwin()
             if not self.chat_win.isVisible():
                 # self.chat_win.set_message_handler(self.message_handler)
                 self.chat_win.set_user()

@@ -17,7 +17,6 @@ def singleton(cls, *args, **kw):
     return _singleton
 
 
-@singleton
 class UserDao(object):
     def __init__(self, account, new = False):
         self.account = account

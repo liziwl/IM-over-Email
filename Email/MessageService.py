@@ -48,7 +48,6 @@ class MessageService(MessageServiceInterface):
 
     def __init__(self, user, listener, userdao):
 
-        self.load_privkey(None)
 
         self.user = user
         self.user_config = {
@@ -64,12 +63,13 @@ class MessageService(MessageServiceInterface):
         self.mailservice = MailService(self.user_config)
         self.userdao = userdao
         self.listener = listener
-        listen = threading.Thread(target=self._listen_message, args=())
-        listen.start()
+        self.load_privkey()
+        # listen = threading.Thread(target=self._listen_message, args=())
+        # listen.start()
 
         # need to change just return the private key object of this user
 
-    def load_privkey(self, key_path):
+    def load_privkey(self):
         '''
         with open(key_path, 'rb') as f:
             key = f.read()
@@ -77,7 +77,7 @@ class MessageService(MessageServiceInterface):
         self.privkey = KeyService.load_privkey(key)
         '''
         # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)
-        self.privkey = KeyService.getPrivateKey(self.user.account, "123456")
+        self.privkey = KeyService.getPrivateKey(self.user_config["account"], "123456")
 
     def get_unseen_message(self, uuid):
         mails = self.mailservice.get_unseen_mails_in_folder_with_subject('INBOX', str(uuid))
@@ -194,3 +194,7 @@ if __name__ == '__main__':
     #
     # # print(messageserver.get_all_conversion(['pengym_111@163.com']))
     # # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)
+
+    # 1048217874@qq.com
+    # pengym_111@163.com
+    # hvwoTxJndBEi8B4G

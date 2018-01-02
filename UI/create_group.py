@@ -92,7 +92,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:
                 group_member.append(self.contacts[i].account)
-        self.userDao.add_group(group_name, group_member)
+        self.userDao.add_group(group_name, tuple(group_member))
         self.accept()
 
 
