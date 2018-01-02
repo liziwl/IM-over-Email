@@ -4,14 +4,23 @@ import sqlite3
 from Main.model.contact import Contact
 from Main.model.group import Group
 from Main.model.message import Message
+from Main.utils import get_current_user
+import os
 
 
 class UserDao(object):
-    def __init__(self, account, database_path):
-        self.account = account
+    def __init__(self, database_path, new = False):
+        self.account = get_current_user()
         try:
             self.conn = sqlite3.connect(database_path)
+            if new:
+                current_dir = os.path.dirname(__file__)
+                script_path = os.path.join(current_dir, 'user.sql')
+                c = self.conn.cursor()
+                with open(script_path) as f:
+                    c.executescript(f.read())
         except Exception as e:
+            print(e)
             print('Unable to connect to user database')
             exit(1)
 

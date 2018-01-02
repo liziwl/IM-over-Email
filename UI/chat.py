@@ -113,17 +113,9 @@ class Ui_MainWindow(object):
 
         MainWindow.setWindowTitle("ChatRoom")
         self.listWidget.setFont(font12)
-        # single_fig = QtGui.QIcon()
-        # single_fig.addPixmap(QtGui.QPixmap('resource\\single.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
-        #                   QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # group_fig = QtGui.QIcon()
-        # group_fig.addPixmap(QtGui.QPixmap('resource\\group.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
-        #                      QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.new_contact_button.setText("Add contact")
-        # self.new_contact_button.setIcon(single_fig)
         self.new_contact_button.setFont(font12)
         self.group_chat_Button.setText("Creat group")
-        # self.group_chat_Button.setIcon(group_fig)
         self.group_chat_Button.setFont(font12)
 
         # self.friend_name_label.setText("Friend name")
@@ -147,6 +139,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.add_group = create_group_win()
         self.messgae_handler = None
         self.contacts_log = {}
+        self.single_fig = QtGui.QIcon()
+        self.single_fig.addPixmap(QtGui.QPixmap('resource\\single.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+                             QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.group_fig = QtGui.QIcon()
+        self.group_fig.addPixmap(QtGui.QPixmap('resource\\group.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+                            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.ban_fig = QtGui.QIcon()
+        self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
+                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
@@ -159,9 +160,11 @@ class chatwin(QMainWindow, Ui_MainWindow):
         if self.add_win.exec_():
             user = self.add_win.get_newcontact()
             print(user)
-            self.contacts_log[user["email"]] = Chat_log(user["email"], user["name"])
+            self.contacts_log[user["name"]] = Chat_log(user["email"], Chat_log.SINGLE,user["name"])
             print("add new user", user)
             new_user = QListWidgetItem(user["name"])
+
+            new_user.setIcon(self.single_fig)
             self.map_ui.friend_name_label.setText(user["name"])
             self.map_ui.listWidget.insertItem(0, new_user)
             self.map_ui.listWidget.setCurrentItem(new_user)
@@ -171,6 +174,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.add_group.load_contact(self.get_contact_list())
         if self.add_group.exec_():
             print(self.add_group.re_dat)
+
+            new_group = QListWidgetItem(self.add_group.re_dat["name"])
+            new_group.setIcon(self.group_fig)
+            self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"], Chat_log.GROUP, self.add_group.re_dat["name"])
+            self.map_ui.friend_name_label.setText(self.add_group.re_dat["name"])
+            self.map_ui.listWidget.insertItem(0, new_group)
+            self.map_ui.listWidget.setCurrentItem(new_group)
+            self.map_ui.textBrowser.clear()
+
 
     def get_contact_list(self):
         out = []
@@ -184,16 +196,17 @@ class chatwin(QMainWindow, Ui_MainWindow):
         item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
         self.contacts_log[item.text()].set_blocked()
         print("block user", item.text())
-        ban_fig = QtGui.QIcon()
-        ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
-                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(ban_fig)
+        item.setIcon(self.ban_fig)
 
     def unblock_contact(self, pos):
         item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
         self.contacts_log[item.text()].reset_blocked()
         print("unblock user", item.text())
-        item.setIcon(QIcon())
+        if self.contacts_log[item.text()].type == Chat_log.GROUP:
+            item.setIcon(self.group_fig)
+        else:
+            item.setIcon(self.single_fig)
+
 
     def delete_contact(self, pos):
         item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))

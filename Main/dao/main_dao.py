@@ -11,7 +11,10 @@ class MainDao(object):
             self.conn = sqlite3.connect(path)
             if not has_main_db:
                 c = self.conn.cursor()
-                c.executescript('database/user.sql')
+                current_dir = os.path.dirname(__file__)
+                script_path = os.path.join(current_dir, 'main.sql')
+                with open(script_path) as f:
+                    c.executescript(f.read())
         except Exception as e:
             print("Unable to connect to main database")
             exit(1)
@@ -31,11 +34,11 @@ class MainDao(object):
         if not self.is_account_exists(user.account):
             c = self.conn.cursor()
             c.execute(
-                "INSERT INTO users(account, lock_password, "
+                "INSERT INTO users(account, password, lock_password, "
                 "smtp_server, smtp_port, imap_server, imap_port) "
-                "VALUES(?, ?, ?, ?, ?, ?);",
+                "VALUES(?, ?, ?, ?, ?, ?, ?);",
                 [
-                    user.account, user.lock_password,
+                    user.account, user.password, user.lock_password,
                     user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
                 ]
             )
@@ -44,12 +47,12 @@ class MainDao(object):
     def get_user_info(self, account):
         c = self.conn.cursor()
         c.execute(
-            "SELECT account, lock_password, smtp_server, smtp_port, imap_server, imap_port "
+            "SELECT account, password, lock_password, smtp_server, smtp_port, imap_server, imap_port "
             "FROM users "
             "WHERE account = ?", [account]
         )
         result = c.fetchone()
-        return User(result[0], result[1], result[2], result[3], result[4], result[5])
+        return User(result[0], result[1], result[2], result[3], result[4], result[5], result[6])
 
     def verify_user(self, account, lock_password):
         c = self.conn.cursor()
@@ -64,7 +67,7 @@ class MainDao(object):
 if __name__ == '__main__':
     mainDao = MainDao('../main.db')
     mainDao.insert_user(
-        User('1048217874@qq.com', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
+        User('kkk@qq.com', '123456', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
     )
     result = mainDao.get_user_info("pengym_111@163.com")
     print(result.account)

@@ -73,7 +73,7 @@ class KeyService(KeyServiceInterface):
 
         ct_private_key = EncryptionDecryption.chacha20_encrypt(privkey_pem,chacha20_key,nonce)
 
-        with open("private_key"+email_address,'wb') as f:
+        with open(email_address + "/private_key",'wb') as f:
             f.write(ct_private_key)
             f.close()
         return privkey
@@ -101,7 +101,7 @@ class KeyService(KeyServiceInterface):
     @staticmethod
     def getPrivateKey(account,password):
         try:
-            with open("private_key"+account,'rb') as f:
+            with open(account + "/private_key",'rb') as f:
                 pk = f.read()
                 f.close()
             random.seed(password)

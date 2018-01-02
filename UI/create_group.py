@@ -52,13 +52,14 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         self.load_contact(contacts)
 
     def load_contact(self, contacts):
+        self.contacts = contacts
         font12 = QtGui.QFont()
         font12.setFamily("等线")
         font12.setPointSize(12)
 
         self.cr_win.tableWidget.setColumnCount(1)
-        self.cr_win.tableWidget.setRowCount(len(contacts))
-        for i in range(len(contacts)):
+        self.cr_win.tableWidget.setRowCount(len(self.contacts))
+        for i in range(len(self.contacts)):
             # 行表头
             item_head = QtWidgets.QTableWidgetItem()
             item_head.setFont(font12)
@@ -67,7 +68,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
             # 行数据
             item_data = QtWidgets.QTableWidgetItem()
             item_data.setFont(font12)
-            item_data.setText(contacts[i])
+            item_data.setText(self.contacts[i])
             item_data.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
             item_data.setCheckState(QtCore.Qt.Unchecked)
             self.cr_win.tableWidget.setItem(i, 0, item_data)
@@ -84,7 +85,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         for i in range(row_num):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:
-                self.group_member.append(contacts[i])
+                self.group_member.append(self.contacts[i])
         self.re_dat["name"] = self.cr_win.lineEdit.text()
         self.re_dat["group"] = self.group_member
         print(self.re_dat)
@@ -95,5 +96,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     contacts = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
     ex = create_group_win(contacts)
-    ex.show()
+    if ex.exec_():
+        print(ex.re_dat)
     sys.exit(app.exec_())

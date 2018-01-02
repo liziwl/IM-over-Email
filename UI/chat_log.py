@@ -3,12 +3,15 @@ import time as ti
 
 
 class Chat_log(object):
-    def __init__(self, email, name=None, uid=None):
+    GROUP = 1
+    SINGLE = 0
+    def __init__(self, email, type, name=None, uid=None):
         self.name = name
         self.email = email
         self.uid = uid
         self.log = []
         self.isblocked = False
+        self.type = type
 
     def set_blocked(self):
         self.isblocked = True
