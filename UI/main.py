@@ -55,6 +55,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],
+                    self.user_config['password'],
                     self.user_config['lock_password'],
                     self.user_config['smtp_server'],
                     self.user_config['smtp_port'],

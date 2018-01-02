@@ -149,6 +149,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+
+
     def set_message_handler(self, handler):
         self.messgae_handler = handler
         self.messgae_handler.send_message(['pengym_111@163.com'], 'hello2', ['..\\Email\\lenna.jpeg'])
