@@ -64,7 +64,7 @@ class KeyService(KeyServiceInterface):
 
     @staticmethod
     def generate_keys(email_address, password):
-        pubkey,privkey = rsa.newkeys(512)
+        pubkey, privkey = rsa.newkeys(512)
 
         KeyService._post_keys(email_address,pubkey)
 
