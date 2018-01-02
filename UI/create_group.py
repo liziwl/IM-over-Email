@@ -4,6 +4,7 @@ import sys
 
 from Main.dao.user_dao import UserDao
 from Main.utils import get_current_user
+from Main import utils
 
 
 class Ui_create_group_Dialog(object):
@@ -41,21 +42,21 @@ class Ui_create_group_Dialog(object):
 
 
 class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
-    def __init__(self, contacts=[]):
+    def __init__(self):
         super().__init__()
         self.cr_win = Ui_create_group_Dialog()
         self.cr_win.setupUi(self)
-        self.contacts = contacts
-        self.re_dat = {}
-        self.group_member = []
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-        self.load_contact(contacts)
 
-    def load_contact(self, contacts):
-        self.contacts = contacts
+    def set_user(self):
+        self.userDao = UserDao(utils.get_current_user().account)
+        self.contacts = self.userDao.get_contacts()
+        self.load_contact()
+
+    def load_contact(self):
         font12 = QtGui.QFont()
         font12.setFamily("等线")
         font12.setPointSize(12)
@@ -71,7 +72,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
             # 行数据
             item_data = QtWidgets.QTableWidgetItem()
             item_data.setFont(font12)
-            item_data.setText(self.contacts[i])
+            item_data.setText(self.contacts[i].name)
             item_data.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
             item_data.setCheckState(QtCore.Qt.Unchecked)
             self.cr_win.tableWidget.setItem(i, 0, item_data)
@@ -85,23 +86,19 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
 
     def ok(self):
         row_num = self.cr_win.tableWidget.rowCount()
+        group_name = self.cr_win.lineEdit.text()
+        group_member = list()
         for i in range(row_num):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:
-                self.group_member.append(self.contacts[i])
-        self.re_dat["name"] = self.cr_win.lineEdit.text()
-        self.re_dat["group"] = self.group_member
-        print(self.re_dat)
+                group_member.append(self.contacts[i].account)
+        self.userDao.add_group(group_name, group_member)
         self.accept()
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    user = get_current_user()
-    userDao = UserDao(user.account + "/user.db")
-    contacts = userDao.get_contacts()
-    print(contacts)
-    # ex = create_group_win(contacts)
-    # if ex.exec_():
-    #     print(ex.re_dat)
+    ex = create_group_win()
+    if ex.exec_():
+        print(ex.re_dat)
     sys.exit(app.exec_())

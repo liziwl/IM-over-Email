@@ -1,3 +1,18 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : IM main
+ Source Server Type    : SQLite
+ Source Server Version : 3012001
+ Source Schema         : main
+
+ Target Server Type    : SQLite
+ Target Server Version : 3012001
+ File Encoding         : 65001
+
+ Date: 02/01/2018 11:22:26
+*/
+
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
@@ -17,6 +32,7 @@ CREATE TABLE "users" (
   "smtp_port" integer,
   "imap_server" text,
   "imap_port" integer,
+  "password" text,
   PRIMARY KEY ("account")
 );
 

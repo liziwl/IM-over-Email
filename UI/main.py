@@ -5,7 +5,7 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-from Main.utils import set_current_user
+from Main.utils import set_current_user, get_user_dir, make_user_dir
 from Main.dao.user_dao import UserDao
 
 from Security.KeyService import KeyService
@@ -40,6 +40,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     return
                 else:
                     return
+            set_current_user(account)
             # 判断用户是否存在
             if not self.mainDao.is_account_exists(account):
                 self.user_config = self.conf.user_config
@@ -51,11 +52,12 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # TODO: set lock password
                 self.user_config['lock_password'] = '123456'
                 # 生成用户目录
-                os.mkdir(account)
+                make_user_dir(account)
                 # 生成钥匙
                 KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 生成用户数据库
-                userDao = UserDao(new=True)
+                userDao = UserDao(account, new=True)
+
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],
@@ -67,16 +69,25 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_port']
                 )
                 self.mainDao.insert_user(new_user)
-            set_current_user(account)
+
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
+            self.chat_win = chatwin()
             if not self.chat_win.isVisible():
                 # self.chat_win.set_message_handler(self.message_handler)
+                self.chat_win.set_user()
                 self.chat_win.show()
                 self.close()
 
+    def init_login(self):
+        if not self.chat_win.isVisible():
+            # self.chat_win.set_message_handler(self.message_handler)
+            self.chat_win.show()
+            self.close()
+
     def try_setting(self):
         self.conf.show()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

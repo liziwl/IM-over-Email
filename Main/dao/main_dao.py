@@ -6,6 +6,16 @@ CURRENT_DIR = os.path.dirname(__file__)
 PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
 
 
+def singleton(cls, *args, **kw):
+    instances = {}
+    def _singleton():
+        if cls not in instances:
+            instances[cls] = cls(*args, **kw)
+        return instances[cls]
+    return _singleton
+
+
+@singleton
 class MainDao(object):
     def __init__(self):
         path = os.path.join(PARENT_DIR, 'main.db')
@@ -69,6 +79,8 @@ class MainDao(object):
 
 if __name__ == '__main__':
     mainDao = MainDao()
+    mainDao2 = MainDao()
+    print(mainDao == mainDao2)
     mainDao.insert_user(
         User('kkk@qq.com', '123456', '123456', 'smtp.163.com', 25, 'imap.163.com', 993)
     )

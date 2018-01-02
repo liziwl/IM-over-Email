@@ -11,6 +11,7 @@ import time
 from Main.model.message import Message
 import threading
 from Main.dao.user_dao import UserDao
+from Security.KeyService import KeyService
 
 # !! just fot test
 # we need this from KeyService
@@ -45,12 +46,24 @@ class MessageServiceInterface:
 
 class MessageService(MessageServiceInterface):
 
-    def __init__(self, user_config, listener, userdao):
-        self.user_config = user_config
-        self.load_privkey(None)
-        self.mailservice = MailService(user_config)
-        self.userdao = userdao
+    def __init__(self, user, listener, userdao):
 
+        self.load_privkey(None)
+
+        self.user = user
+        self.user_config = {
+            "account": user.account,
+            # mail password
+            "password": user.password,
+            "imap_server": user.imap_server,
+            "imap_port": user.imap_port,
+            "smtp_server": user.smtp_server,
+            "smtp_port": user.smtp_port
+        }
+
+        self.mailservice = MailService(self.user_config)
+        self.userdao = userdao
+        self.listener = listener
         listen = threading.Thread(target=self._listen_message, args=())
         listen.start()
 
@@ -63,7 +76,8 @@ class MessageService(MessageServiceInterface):
             f.close()
         self.privkey = KeyService.load_privkey(key)
         '''
-        self.privkey = privkey
+        # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)
+        self.privkey = KeyService.getPrivateKey(self.user.account, "123456")
 
     def get_unseen_message(self, uuid):
         mails = self.mailservice.get_unseen_mails_in_folder_with_subject('INBOX', str(uuid))
@@ -100,10 +114,9 @@ class MessageService(MessageServiceInterface):
 
     def notify(self, listener, messages):
         # to do
-        # listener.update(messages)
-        print(message.content)
+        listener.updatemessages(messages)
+
         print('notifyed')
-        pass
 
     # hash function
 
@@ -116,19 +129,10 @@ class MessageService(MessageServiceInterface):
             names = name + names
         return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
 
-    def getuuid(self, accounts):
-        accounts_name = copy.deepcopy(list(accounts))
-        accounts_name.append(self.user_config['account'])
-        accounts_name = sorted(accounts_name)
-        names = ''
-        for name in accounts_name:
-            names = name + names
-        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
-
     # receiver : send to
     # receivers: 收件人
     def _send_message_single(self, receiver, receivers, message, binary_attachments, uuid):
-        # pubkey = KeyService.getPublicKey(account)
+        pubkey = KeyService.getPublicKey(receiver)
         encrypted_binary_files = EncryptionDecryption.encrypt_attachments(binary_attachments, public_key=pubkey)
         ct_message = EncryptionDecryption.encrypt_mail(message, pubkey)
         self.mailservice.send_mail(receiver, receivers, subject=uuid, content=ct_message,
@@ -172,21 +176,21 @@ if __name__ == '__main__':
         "smtp_port": 25
     }
 
-    userdao = UserDao('penym_111@163.com', '../Main/user.db')
-    messageserver = MessageService(user_config, None, userdao)
-
-    uid = messageserver.getuuid(['pengym_111@163.com'])
-
-    # please use your e-mail to try this :)
-    message = Main.model.message.Message(str(uid), 'hello', "", "pengym_111@163.com")
-    messageserver.send_message(['pengym_111@163.com'], message)
-    # messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
-
-    # messageserver.get_unseen_message('INBOX')
-
-    time.sleep(3)
-    print(messageserver.get_unseen_message(uid))
-    print(messageserver.get_all_messages(uid))
-
-    # print(messageserver.get_all_conversion(['pengym_111@163.com']))
-    # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)
+    # userdao = UserDao('penym_111@163.com', '../Main/test.db')
+    # messageserver = MessageService(user_config, None, userdao)
+    #
+    # uid = messageserver.getuuid(['pengym_111@163.com'])
+    #
+    # # please use your e-mail to try this :)
+    # message = Main.model.message.Message(str(uid), 'hello', "", "pengym_111@163.com")
+    # messageserver.send_message(['pengym_111@163.com'], message)
+    # # messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
+    #
+    # # messageserver.get_unseen_message('INBOX')
+    #
+    # time.sleep(3)
+    # print(messageserver.get_unseen_message(uid))
+    # print(messageserver.get_all_messages(uid))
+    #
+    # # print(messageserver.get_all_conversion(['pengym_111@163.com']))
+    # # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)

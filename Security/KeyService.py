@@ -1,6 +1,8 @@
 import rsa
 import gnupg
 import requests
+
+from Main.utils import get_user_dir
 from Security.EncryptionDecryptionService import EncryptionDecryption
 import os
 import random
@@ -62,7 +64,7 @@ class KeyService(KeyServiceInterface):
 
     @staticmethod
     def generate_keys(email_address, password):
-        pubkey,privkey = rsa.newkeys(512)
+        pubkey, privkey = rsa.newkeys(512)
 
         KeyService._post_keys(email_address,pubkey)
 
@@ -72,8 +74,8 @@ class KeyService(KeyServiceInterface):
         nonce = random.getrandbits(16 * 8).to_bytes(16, sys.byteorder)
 
         ct_private_key = EncryptionDecryption.chacha20_encrypt(privkey_pem,chacha20_key,nonce)
-
-        with open(email_address + "/private_key",'wb') as f:
+        key_path = os.path.join(get_user_dir(email_address), 'private_key')
+        with open(key_path,'wb') as f:
             f.write(ct_private_key)
             f.close()
         return privkey
@@ -101,6 +103,7 @@ class KeyService(KeyServiceInterface):
     @staticmethod
     def getPrivateKey(account,password):
         try:
+            key_path = os.path.join(get_user_dir(account), 'private_key')
             with open(account + "/private_key",'rb') as f:
                 pk = f.read()
                 f.close()
