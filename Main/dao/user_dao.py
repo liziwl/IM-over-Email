@@ -8,6 +8,16 @@ from Main.utils import get_current_user, get_user_dir
 import os
 
 
+def singleton(cls, *args, **kw):
+    instances = {}
+    def _singleton():
+        if cls not in instances:
+            instances[cls] = cls(*args, **kw)
+        return instances[cls]
+    return _singleton
+
+
+@singleton
 class UserDao(object):
     def __init__(self, new = False):
         self.account = get_current_user().account
