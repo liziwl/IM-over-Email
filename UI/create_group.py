@@ -28,7 +28,6 @@ class Ui_create_group_Dialog(object):
         self.buttonBox.accepted.connect(Dialog.ok)
         self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-        self.userDao = UserDao()
 
     def retranslateUi(self, Dialog):
         font12 = QtGui.QFont()
@@ -48,7 +47,8 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         self.cr_win.setupUi(self)
         self.userDao = UserDao()
         self.contacts = self.userDao.get_contacts()
-
+        for contact in self.contacts:
+            print(contact)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
@@ -90,13 +90,11 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:
                 group_member.append(self.contacts[i].account)
-        self.userDao.add_group(group_name, group_member)
+        self.userDao.add_group(group_name, tuple(group_member))
         self.accept()
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     ex = create_group_win()
-    if ex.exec_():
-        print(ex.re_dat)
     sys.exit(app.exec_())
