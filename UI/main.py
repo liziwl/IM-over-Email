@@ -19,7 +19,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
         super(Login_win, self).__init__()
         self.setupUi(self)
-        self.chat_win = chatwin()
+        self.chat_win = None
         self.conf = config_win()
         self.alert = alert_win("Wrong Account or password.")
 
@@ -70,13 +70,18 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
             set_current_user(account)
             # 这里已经获取了所有需要的信息，尝试登录
             # self.message_handler = MessageService(self.user_config)
-            if not self.chat_win.isVisible():
-                # self.chat_win.set_message_handler(self.message_handler)
-                self.chat_win.show()
-                self.close()
+            self.init_login()
+
+    def init_login(self):
+        self.chat_win = chatwin()
+        if not self.chat_win.isVisible():
+            # self.chat_win.set_message_handler(self.message_handler)
+            self.chat_win.show()
+            self.close()
 
     def try_setting(self):
         self.conf.show()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
