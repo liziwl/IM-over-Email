@@ -1,3 +1,18 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : IM user db template
+ Source Server Type    : SQLite
+ Source Server Version : 3012001
+ Source Schema         : main
+
+ Target Server Type    : SQLite
+ Target Server Version : 3012001
+ File Encoding         : 65001
+
+ Date: 02/01/2018 11:22:37
+*/
+
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
@@ -5,12 +20,12 @@ PRAGMA foreign_keys = false;
 -- ----------------------------
 DROP TABLE IF EXISTS "contacts";
 CREATE TABLE "contacts" (
-  "id" integer(11,2),
   "name" text,
   "account" text,
   "public_key" text,
   "trusted" integer(1),
-  PRIMARY KEY ("id")
+  "is_blocked" integer(1) DEFAULT 0,
+  "id" integer PRIMARY KEY AUTOINCREMENT
 );
 
 -- ----------------------------
@@ -43,12 +58,23 @@ CREATE TABLE "member_in_group" (
 DROP TABLE IF EXISTS "messages";
 CREATE TABLE "messages" (
   "content" text,
-  "date" text,
+  "date_" text,
   "sender" text,
-  "group" integer,
+  "group_" integer,
   "id" integer,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_group_id" FOREIGN KEY ("group") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+-- ----------------------------
+-- Table structure for sqlite_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS "sqlite_sequence";
+CREATE TABLE sqlite_sequence(name,seq);
+
+-- ----------------------------
+-- Auto increment value for contacts
+-- ----------------------------
+UPDATE "main"."sqlite_sequence" SET seq = 6 WHERE name = 'contacts';
 
 PRAGMA foreign_keys = true;

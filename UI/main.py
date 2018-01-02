@@ -5,7 +5,7 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-from Main.utils import set_current_user
+from Main.utils import set_current_user, get_user_dir, make_user_dir
 from Main.dao.user_dao import UserDao
 
 from Security.KeyService import KeyService
@@ -51,7 +51,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # TODO: set lock password
                 self.user_config['lock_password'] = '123456'
                 # 生成用户目录
-                os.mkdir(account)
+                make_user_dir(account)
                 # 生成钥匙
                 KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 生成用户数据库
