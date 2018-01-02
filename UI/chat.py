@@ -9,6 +9,8 @@ from PyQt5.QtCore import *
 from Email.MessageService import *
 import sys
 import time
+from Main import utils
+from Main.dao import main_dao
 
 
 class Ui_MainWindow(object):
@@ -47,7 +49,6 @@ class Ui_MainWindow(object):
         self.group_chat_Button.clicked.connect(MainWindow.creat_group)
         self.horizontalLayout.addWidget(self.group_chat_Button)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
-
 
         self.right_verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.right_verticalLayoutWidget.setGeometry(QtCore.QRect(270, 10, 680, 510))
@@ -138,37 +139,86 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.add_win = add_contact_win()
         self.add_group = create_group_win()
         self.messgae_handler = None
+
         self.contacts_log = {}
         self.single_fig = QtGui.QIcon()
-        self.single_fig.addPixmap(QtGui.QPixmap('resource\\single.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
-                             QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.single_fig.addPixmap(
+            QtGui.QPixmap('resource\\single.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.group_fig = QtGui.QIcon()
-        self.group_fig.addPixmap(QtGui.QPixmap('resource\\group.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
-                            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.group_fig.addPixmap(
+            QtGui.QPixmap('resource\\group.png').scaledToHeight(32, QtCore.Qt.SmoothTransformation),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.ban_fig = QtGui.QIcon()
         self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
-                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                               QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # TODO 单例模式
+        # self.userdao = UserDao("account + "/user.db"")
+        self.current_email = utils.get_current_user().account
+        self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
+        # a map betwween uid and contact name
+        self.contact_uid = {}
+
+    # show new messages
+    def update_messages(self, messages):
+        for message in messages:
+            if self.contacts_log[message.group] is None:
+                self.contacts_log[message.group] = Chat_log(message.sender, Chat_log.SINGLE, message.sender,
+                                                            uid=message.group)
+                # show new contact
+                self.insert_contact(message.sender)
+
+            self.contacts_log[message.group].add_log(message.content, message.date)
+        print("show message")
+        # TODO show message
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
-        self.messgae_handler.send_message(['pengym_111@163.com'], 'hello2', ['..\\Email\\lenna.jpeg'])
-        re = self.messgae_handler.get_unseen_message('INBOX')
-        print(re)
-        print(self.messgae_handler.get_all_conversion(['pengym_111@163.com']))
+        # self.messgae_handler.send_message(['pengym_111@163.com'], 'hello2', ['..\\Email\\lenna.jpeg'])
+        # re = self.messgae_handler.get_unseen_message('INBOX')
+        # print(re)
+        # print(self.messgae_handler.get_all_conversion(['pengym_111@163.com']))
+
+    def _getuuid(self, accounts):
+        accounts_name = copy.deepcopy(list(accounts))
+
+        # append current user uid
+        accounts_name.append(self.current_email)
+
+        accounts_name = sorted(accounts_name)
+        names = ''
+        for name in accounts_name:
+            names = name + names
+        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
 
     def new_contact(self):
         if self.add_win.exec_():
             user = self.add_win.get_newcontact()
             print(user)
-            self.contacts_log[user["name"]] = Chat_log(user["email"], Chat_log.SINGLE,user["name"])
-            print("add new user", user)
-            new_user = QListWidgetItem(user["name"])
+            uid = self._getuuid(user["name"])
+            self.contacts_log[uid] = Chat_log(user["email"], Chat_log.SINGLE, user["name"], uid=uid)
 
-            new_user.setIcon(self.single_fig)
-            self.map_ui.friend_name_label.setText(user["name"])
-            self.map_ui.listWidget.insertItem(0, new_user)
-            self.map_ui.listWidget.setCurrentItem(new_user)
-            self.map_ui.textBrowser.clear()
+            self.contact_uid[user["name"]] = uid
+            self.contact_uid[uid] = user["name"]
+
+            print("add new user", user)
+            self.insert_contact(user["name"])
+            # new_user = QListWidgetItem(user["name"])
+            #
+            # new_user.setIcon(self.single_fig)
+            # self.map_ui.friend_name_label.setText(user["name"])
+            # self.map_ui.listWidget.insertItem(0, new_user)
+            # self.map_ui.listWidget.setCurrentItem(new_user)
+            # self.map_ui.textBrowser.clear()
+
+    def insert_contact(self, contact_name):
+        new_user = QListWidgetItem(contact_name)
+
+        new_user.setIcon(self.single_fig)
+        self.map_ui.friend_name_label.setText(contact_name)
+        self.map_ui.listWidget.insertItem(0, new_user)
+        self.map_ui.listWidget.setCurrentItem(new_user)
+        self.map_ui.textBrowser.clear()
 
     def creat_group(self):
         self.add_group.load_contact(self.get_contact_list())
@@ -177,12 +227,12 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
             new_group = QListWidgetItem(self.add_group.re_dat["name"])
             new_group.setIcon(self.group_fig)
-            self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"], Chat_log.GROUP, self.add_group.re_dat["name"])
+            self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"], Chat_log.GROUP,
+                                                                        self.add_group.re_dat["name"])
             self.map_ui.friend_name_label.setText(self.add_group.re_dat["name"])
             self.map_ui.listWidget.insertItem(0, new_group)
             self.map_ui.listWidget.setCurrentItem(new_group)
             self.map_ui.textBrowser.clear()
-
 
     def get_contact_list(self):
         out = []
@@ -206,7 +256,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
             item.setIcon(self.group_fig)
         else:
             item.setIcon(self.single_fig)
-
 
     def delete_contact(self, pos):
         item = self.map_ui.listWidget.itemAt(self.mapFromGlobal(pos))
@@ -253,11 +302,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
         if contact is None:
             self.map_ui.listWidget.setCurrentRow(0)
             contact = self.map_ui.listWidget.currentItem()
-        self.contacts_log[contact.text()].add_log(text, dt)
-
+        uid = self.contact_uid[contact.text()]
+        self.contacts_log[uid].add_log(text, dt)
         print(dt)
         print(text)
         self.map_ui.textEdit.clear()
+
+        receivers = self.userdao.get_group(uid)
+        message = Message(uid, text, dt, self.current_email)
+        self.messgae_handler.send_message(receivers, message)
 
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")
