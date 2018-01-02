@@ -45,12 +45,23 @@ class MessageServiceInterface:
 
 class MessageService(MessageServiceInterface):
 
-    def __init__(self, user_config, listener, userdao):
-        self.user_config = user_config
-        self.load_privkey(None)
-        self.mailservice = MailService(user_config)
-        self.userdao = userdao
+    def __init__(self, user, listener, userdao):
 
+        self.load_privkey(None)
+
+        self.user_config = {
+            "account": user.account,
+            # mail password
+            "password": user.password,
+            "imap_server": user.imap_server,
+            "imap_port": user.imap_port,
+            "smtp_server": user.smtp_server,
+            "smtp_port": user.smtp_port
+        }
+
+        self.mailservice = MailService(self.user_config)
+        self.userdao = userdao
+        self.listener = listener
         listen = threading.Thread(target=self._listen_message, args=())
         listen.start()
 
@@ -100,23 +111,13 @@ class MessageService(MessageServiceInterface):
 
     def notify(self, listener, messages):
         # to do
-        # listener.update(messages)
-        print(message.content)
+        listener.updatemessages(messages)
+
         print('notifyed')
-        pass
 
     # hash function
 
     def _getuuid(self, accounts):
-        accounts_name = copy.deepcopy(list(accounts))
-        accounts_name.append(self.user_config['account'])
-        accounts_name = sorted(accounts_name)
-        names = ''
-        for name in accounts_name:
-            names = name + names
-        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
-
-    def getuuid(self, accounts):
         accounts_name = copy.deepcopy(list(accounts))
         accounts_name.append(self.user_config['account'])
         accounts_name = sorted(accounts_name)
@@ -172,21 +173,21 @@ if __name__ == '__main__':
         "smtp_port": 25
     }
 
-    userdao = UserDao('penym_111@163.com', '../Main/user.db')
-    messageserver = MessageService(user_config, None, userdao)
-
-    uid = messageserver.getuuid(['pengym_111@163.com'])
-
-    # please use your e-mail to try this :)
-    message = Main.model.message.Message(str(uid), 'hello', "", "pengym_111@163.com")
-    messageserver.send_message(['pengym_111@163.com'], message)
-    # messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
-
-    # messageserver.get_unseen_message('INBOX')
-
-    time.sleep(3)
-    print(messageserver.get_unseen_message(uid))
-    print(messageserver.get_all_messages(uid))
-
-    # print(messageserver.get_all_conversion(['pengym_111@163.com']))
-    # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)
+    # userdao = UserDao('penym_111@163.com', '../Main/test.db')
+    # messageserver = MessageService(user_config, None, userdao)
+    #
+    # uid = messageserver.getuuid(['pengym_111@163.com'])
+    #
+    # # please use your e-mail to try this :)
+    # message = Main.model.message.Message(str(uid), 'hello', "", "pengym_111@163.com")
+    # messageserver.send_message(['pengym_111@163.com'], message)
+    # # messageserver.send_message(['pengym_111@163.com'], 'hello2', ['lenna.jpeg'])
+    #
+    # # messageserver.get_unseen_message('INBOX')
+    #
+    # time.sleep(3)
+    # print(messageserver.get_unseen_message(uid))
+    # print(messageserver.get_all_messages(uid))
+    #
+    # # print(messageserver.get_all_conversion(['pengym_111@163.com']))
+    # # messageserver.send_message(['11510050@mail.sustc.edu.cn'], 'hello', None)
