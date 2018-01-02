@@ -5,11 +5,15 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-from Main.utils import set_current_user
+from Main.utils import set_current_user, get_user_dir, make_user_dir
 from Main.dao.user_dao import UserDao
 
 from Security.KeyService import KeyService
 import os.path
+
+CURRENT_DIR = os.path.dirname(__file__)
+PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
+
 
 class Login_win(QtWidgets.QWidget, Ui_Login):
     def __init__(self):
@@ -21,7 +25,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
 
         self.user_config = {}
         self.message_handler = None
-        self.mainDao = MainDao('../Main/main.db')
+        self.mainDao = MainDao()
 
     def try_login(self):
         # 这里写授权登陆的函数
@@ -47,11 +51,11 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # TODO: set lock password
                 self.user_config['lock_password'] = '123456'
                 # 生成用户目录
-                os.mkdir(account)
+                make_user_dir(account)
                 # 生成钥匙
                 KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 生成用户数据库
-                userDao = UserDao(account + "/user.db", new=True)
+                userDao = UserDao(new=True)
                 # 保存用户
                 new_user = User(
                     self.user_config['account'],

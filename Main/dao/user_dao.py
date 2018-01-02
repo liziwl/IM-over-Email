@@ -4,13 +4,14 @@ import sqlite3
 from Main.model.contact import Contact
 from Main.model.group import Group
 from Main.model.message import Message
-from Main.utils import get_current_user
+from Main.utils import get_current_user, get_user_dir
 import os
 
 
 class UserDao(object):
-    def __init__(self, database_path, new = False):
-        self.account = get_current_user()
+    def __init__(self, new = False):
+        self.account = get_current_user().account
+        database_path = os.path.join(get_user_dir(self.account), 'user.db')
         try:
             self.conn = sqlite3.connect(database_path)
             if new:
@@ -143,7 +144,7 @@ class UserDao(object):
 
 
 if __name__ == '__main__':
-    userDao = UserDao('pengym_111@163.com', '../test.db')
+    userDao = UserDao()
     userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
     userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
     for group in userDao.get_groups():
@@ -155,5 +156,6 @@ if __name__ == '__main__':
 
 
     # please use your e-mail to try this :)
-    message = Message("", 'hello', "", "pengym_111@163.com")
-    userDao.add_messages(message)
+    # message = Message("", 'hello', "", "pengym_111@163.com")
+    # userDao.add_messages(message)
+    print(userDao.get_group_messages('5e93a675-b9b5-3a21-9af7-64f042a4aa63'))
