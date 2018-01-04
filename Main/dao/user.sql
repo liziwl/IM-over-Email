@@ -10,10 +10,21 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 02/01/2018 11:22:37
+ Date: 04/01/2018 23:17:09
 */
 
 PRAGMA foreign_keys = false;
+
+-- ----------------------------
+-- Table structure for attachments
+-- ----------------------------
+DROP TABLE IF EXISTS "attachments";
+CREATE TABLE "attachments" (
+  "message_id" integer,
+  "id" integer PRIMARY KEY AUTOINCREMENT,
+  "content" blob,
+  CONSTRAINT "fk_msg_id" FOREIGN KEY ("message_id") REFERENCES "messages" ("id")
+);
 
 -- ----------------------------
 -- Table structure for contacts
@@ -65,16 +76,3 @@ CREATE TABLE "messages" (
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
--- -- ----------------------------
--- -- Table structure for sqlite_sequence
--- -- ----------------------------
--- DROP TABLE IF EXISTS "sqlite_sequence";
--- CREATE TABLE sqlite_sequence(name,seq);
---
--- -- ----------------------------
--- -- Auto increment value for contacts
--- -- ----------------------------
--- UPDATE "main"."sqlite_sequence" SET seq = 6 WHERE name = 'contacts';
-
-PRAGMA foreign_keys = true;

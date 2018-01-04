@@ -167,31 +167,75 @@ class UserDao(object):
             "INSERT INTO messages(group_, content, date_, sender) "
             "VALUES (?, ?, ?, ?)", [message.group, message.content, message.date, message.sender]
         )
+        for buff in message.attachments:
+            c.execute(
+                "INSERT INTO attachments(message_id, content) "
+                "SELECT id, ? FROM messages "
+                "WHERE group_ = ? "
+                "AND content = ?", [memoryview(buff), message.group, message.content]
+            )
         self.conn.commit()
 
     def get_group_messages(self, group_uuid):
+        from copy import deepcopy
         messages = list()
+        # get body
         c = self.conn.cursor()
         c.execute(
-            "SELECT group_, content, date_, sender FROM messages "
+            "SELECT id, group_, content, date_, sender FROM messages "
             "WHERE group_ = ? "
             "ORDER BY date_"
             , [group_uuid]
         )
-        for m in c.fetchall():
-            messages.append(Message(m[0], m[1], m[2], m[3]))
+        msg_body = deepcopy(c.fetchall())
+
+        # get attachments
+        c = self.conn.cursor()
+        c.execute(
+            "SELECT message_id, content FROM attachments "
+        )
+        # message_id 到 attachment buffer list的map
+        attachment_map = {}
+        for a in c.fetchall():
+            message_id = a[0]
+            buff = a[1]
+            if message_id not in attachment_map:
+                attachment_map[message_id] = list()
+            attachment_map[message_id].append(buff)
+
+        for m in msg_body:
+            message_id = m[0]
+            messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachment_map[message_id]))
         return messages
 
 
 if __name__ == '__main__':
-    userDao = UserDao()
-    userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
-    # userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
-    # for group in userDao.get_groups():
-    #     for member in group.members:
-    #         print(member.account)
-    #
-    #     for message in userDao.get_group_messages(group.group_uuid):
-    #         print(message)
+    userDao = UserDao("pengym_111@163.com")
+
+    # add user
+    userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
+    userDao.add_contact(Contact("Jack", "Jack@outlook.com", "123456", True, True))
+
+    # add group
+    userDao.add_group('面向对象', ('John@outlook.com', 'Jack@outlook.com'))
+
+    # save message with attachments
+    buf1 = open('test.jpg', 'rb').read()
+    buf2 = open('user.sql', 'rb').read()
+    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "Happy New Year!", "2018-1-1", "pengym_111@163.com", attachments=[buf1, buf2])
+    userDao.add_messages(msg)
+
+    for group in userDao.get_groups():
+        for member in group.members:
+            print(member.account)
+
+        for message in userDao.get_group_messages(group.group_uuid):
+            print(message)
+
+            for f in message.attachments:
+                print(repr(str(f)))
+
     userDao.change_contact_block_state("John@outlook.com")
     userDao.remove_contact('John@outlook.com')
+
+
