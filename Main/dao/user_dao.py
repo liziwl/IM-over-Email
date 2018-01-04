@@ -10,15 +10,17 @@ import os
 
 def singleton(cls, *args, **kw):
     instances = {}
+
     def _singleton():
         if cls not in instances:
             instances[cls] = cls(*args, **kw)
         return instances[cls]
+
     return _singleton
 
 
 class UserDao(object):
-    def __init__(self, account, new = False):
+    def __init__(self, account, new=False):
         self.account = account
         self.conn = None
         database_path = os.path.join(get_user_dir(self.account), 'user.db')
@@ -57,7 +59,7 @@ class UserDao(object):
             "SELECT name, account, public_key, trusted, is_blocked FROM contacts"
         )
         return [
-           Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
+            Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
         ]
 
     def is_contact_exists(self, account):
@@ -68,6 +70,7 @@ class UserDao(object):
         )
         return c.fetchone() is not None
 
+    # TODO group: let group represent dialog message.group :=uuid
     def get_groups(self):
         c = self.conn.cursor()
         c.execute(
@@ -90,6 +93,8 @@ class UserDao(object):
             names = name + names
         group_uuid = str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
         if not self.is_group_exists(group_uuid):
+            accounts_str = '(' + ','.join(['"' + s + '"' for s in accounts]) + ')'
+            print(accounts_str)
             c.execute(
                 "INSERT INTO groups(name, uuid) "
                 "VALUES (?, ?)", [group_name, group_uuid]
@@ -97,7 +102,7 @@ class UserDao(object):
             c.execute(
                 "INSERT INTO member_in_group(member_id, group_id) "
                 "SELECT id, ? FROM contacts "
-                "WHERE account IN %s" % str(accounts), [group_uuid]
+                "WHERE account IN %s" % accounts_str, [group_uuid]
             )
             self.conn.commit()
 
@@ -113,7 +118,7 @@ class UserDao(object):
         c = self.conn.cursor()
         c.execute(
             "SELECT name FROM groups "
-            "WHERE uuid = ?", [uuid]
+            "WHERE uuid = ? ", [uuid]
         )
         group_name = c.fetchone()[0]
         c = self.conn.cursor()
@@ -125,7 +130,7 @@ class UserDao(object):
             "ON contacts.id = member_ids.member_id", [uuid]
         )
         members = [
-           Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
+            Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
         ]
         return Group(group_name, members, uuid)
 
@@ -153,7 +158,7 @@ class UserDao(object):
 
 if __name__ == '__main__':
     userDao = UserDao('pengym_111@163.com')
-    userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
+    userDao.add_group('面向对象', ['12@qq.com', '1@qq.com'])
     userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
     for group in userDao.get_groups():
         for member in group.members:
@@ -161,7 +166,6 @@ if __name__ == '__main__':
 
         for message in userDao.get_group_messages(group.group_uuid):
             print(message)
-
 
     # please use your e-mail to try this :)
     # message = Message("", 'hello', "", "pengym_111@163.com")

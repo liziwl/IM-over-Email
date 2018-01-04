@@ -48,7 +48,6 @@ class MessageService(MessageServiceInterface):
 
     def __init__(self, user, listener, userdao):
 
-
         self.user = user
         self.user_config = {
             "account": user.account,
@@ -64,8 +63,8 @@ class MessageService(MessageServiceInterface):
         self.userdao = userdao
         self.listener = listener
         self.load_privkey()
-        # listen = threading.Thread(target=self._listen_message, args=())
-        # listen.start()
+        listen = threading.Thread(target=self._listen_message, args=())
+        listen.start()
 
         # need to change just return the private key object of this user
 
@@ -86,6 +85,7 @@ class MessageService(MessageServiceInterface):
             mail = self._decrypt_mail(mail)
             if mail is not None:
                 message = Main.model.message.Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
+                # TODO tuple(message, people: receivers+sender)
                 messages.append(message)
                 self.userdao.add_messages(message)
         return messages
@@ -152,10 +152,12 @@ class MessageService(MessageServiceInterface):
         # just send content
         content = message.content
         uid = self._getuuid(accounts)
+        print('ready to send')
         for recevier in accounts:
             self._send_message_single(recevier, accounts, content, [], uid)
 
-        self.userdao.add_messages(message)
+        print('have sent')
+        # self.userdao.add_messages(message)
 
     def _decrypt_mail(self, mail):
         try:

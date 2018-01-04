@@ -46,7 +46,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         super().__init__()
         self.cr_win = Ui_create_group_Dialog()
         self.cr_win.setupUi(self)
-
+        self.re_dat = {}
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
@@ -88,11 +88,16 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         row_num = self.cr_win.tableWidget.rowCount()
         group_name = self.cr_win.lineEdit.text()
         group_member = list()
+        # add current user to the group
+        group_member.append(utils.get_current_user().account)
         for i in range(row_num):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:
                 group_member.append(self.contacts[i].account)
+
         self.userDao.add_group(group_name, tuple(group_member))
+        self.re_dat["name"] = self.cr_win.lineEdit.text()
+        self.re_dat["group"] = group_member
         self.accept()
 
 
