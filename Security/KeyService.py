@@ -66,53 +66,55 @@ class KeyService(KeyServiceInterface):
     def generate_keys(email_address, password):
         pubkey, privkey = rsa.newkeys(512)
 
-        KeyService._post_keys(email_address,pubkey)
+        KeyService._post_keys(email_address, pubkey)
 
         privkey_pem = privkey.save_pkcs1('PEM')
         random.seed(password)
         chacha20_key = random.getrandbits(32 * 8).to_bytes(32, sys.byteorder)
         nonce = random.getrandbits(16 * 8).to_bytes(16, sys.byteorder)
 
-        ct_private_key = EncryptionDecryption.chacha20_encrypt(privkey_pem,chacha20_key,nonce)
+        ct_private_key = EncryptionDecryption.chacha20_encrypt(privkey_pem, chacha20_key, nonce)
         key_path = os.path.join(get_user_dir(email_address), 'private_key')
-        with open(key_path,'wb') as f:
+        with open(key_path, 'wb') as f:
             f.write(ct_private_key)
             f.close()
         return privkey
 
+    # TODO 新上传的会顶替掉原来的
     # post public key to server
     @staticmethod
-    def _post_keys(email_address,pubkey):
+    def _post_keys(email_address, pubkey):
         pubkey_pem = pubkey.save_pkcs1("PEM")
         # base64.b64encode(ct_mail).decode('ascii')
         # post the key to server
         payload = {"email": email_address, "public_key": pubkey_pem.decode('ascii')}
         r = requests.post("http://csyllabus.org:9999/api/key", json=payload)
 
+    # TODO 如果本地数据有且正确就从本地获取
     @staticmethod
     def getPublicKey(account):
         # get binary key from server as string
-        payload = {"email":account}
-        r = requests.post("http://csyllabus.org:9999/api/key/public_key",json=payload)
+        payload = {"email": account}
+        r = requests.post("http://csyllabus.org:9999/api/key/public_key", json=payload)
         r.encoding = 'ascii'
         str_pk = r.text
+        print(str_pk)
         pk = str_pk.encode('ascii')
-        return rsa.PublicKey.load_pkcs1(pk,format="PEM")
-
+        return rsa.PublicKey.load_pkcs1(pk, format="PEM")
 
     @staticmethod
-    def getPrivateKey(account,password):
+    def getPrivateKey(account, password):
         try:
             key_path = os.path.join(get_user_dir(account), 'private_key')
-            with open(account + "/private_key",'rb') as f:
+            with open(account + "/private_key", 'rb') as f:
                 pk = f.read()
                 f.close()
             random.seed(password)
-            chacha20_key = random.getrandbits(32 * 8).to_bytes(32,sys.byteorder)
-            nonce = random.getrandbits(16 * 8).to_bytes(16,sys.byteorder)
+            chacha20_key = random.getrandbits(32 * 8).to_bytes(32, sys.byteorder)
+            nonce = random.getrandbits(16 * 8).to_bytes(16, sys.byteorder)
 
-            de_pk = EncryptionDecryption.chacha20_decrypt(pk,chacha20_key,nonce)
-            return rsa.PrivateKey.load_pkcs1(de_pk,format="PEM")
+            de_pk = EncryptionDecryption.chacha20_decrypt(pk, chacha20_key, nonce)
+            return rsa.PrivateKey.load_pkcs1(de_pk, format="PEM")
         except FileNotFoundError:
             print("this user has not generate private key!")
 
@@ -128,32 +130,30 @@ class KeyService(KeyServiceInterface):
 
     @staticmethod
     def load_privkey(key, format='PEM'):
+
         return rsa.PrivateKey.load_pkcs1(key, format='PEM')
 
     @staticmethod
     def load_pubkey(key, format='PEM'):
+        pk = key.encode('ascii')
         return rsa.PublicKey.load_pkcs1(key, format=format)
 
 
 if __name__ == '__main__':
     import random
-    random.seed('hhhh')
 
+    random.seed('hhhh')
 
     print(KeyService.getPublicKey("pengym_111@163.com"))
     # print(KeyService.getPublicKey("1048217874@qq.com"))
     # print(KeyService.generate_keys("pengym_111@163.com","123456"))
 
-    print(KeyService.getPrivateKey("pengym_111@163.com","123456"))
+    print(KeyService.getPrivateKey("pengym_111@163.com", "123456"))
 
-
-
-
-    #print(KeyService.generate_keys())
+    # print(KeyService.generate_keys())
     # from the public key object to binary file
     # pem_pubkey = KeyService.save_pubkey(pubkey)
     # from the binary file to public key object
     # red_pubkey = KeyService.load_pubkey(pem_pubkey)
     # print(red_pubkey)
     # print(pem_pubkey)
-

@@ -138,3 +138,13 @@ class MailService(MailServiceInterface):
             smtpObj.close()
         except smtplib.SMTPException as e:
             print("Error: Unable to send email!")
+
+if __name__ == '__main__':
+    user_config = {
+        "account": "11510050@mail.sustc.edu.cn",
+        "password": "Wang1207",
+        "imap_server": "imap.exmail.qq.com",
+        "imap_port": 993,
+        "smtp_server": "smtp.exmail.qq.com",
+        "smtp_port": 465
+    }

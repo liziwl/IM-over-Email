@@ -63,19 +63,14 @@ class MessageService(MessageServiceInterface):
         self.userdao = userdao
         self.listener = listener
         self.load_privkey()
+        # TODO　这里调用观察者的updatemessages方法，但是并有效果，请测试（没有执行这个线程）
         listen = threading.Thread(target=self._listen_message, args=())
         listen.start()
 
         # need to change just return the private key object of this user
 
     def load_privkey(self):
-        '''
-        with open(key_path, 'rb') as f:
-            key = f.read()
-            f.close()
-        self.privkey = KeyService.load_privkey(key)
-        '''
-        # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)
+        # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)　这里的锁屏密码用来加密私钥，锁屏密码现在默认都是123456 这个字端在UI端还无法设置，请完善 并且利用这个进行登陆验证
         self.privkey = KeyService.getPrivateKey(self.user_config["account"], "123456")
 
     def get_unseen_message(self, uuid):
@@ -85,11 +80,11 @@ class MessageService(MessageServiceInterface):
             mail = self._decrypt_mail(mail)
             if mail is not None:
                 message = Main.model.message.Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
-                # TODO tuple(message, people: receivers+sender)
-                messages.append(message)
+
                 self.userdao.add_messages(message)
         return messages
 
+    # 检查可以解密的未读消息，并且返回给chat
     def _listen_message(self):
         while True:
             new_messages = self._get_unseen_message()
@@ -104,9 +99,10 @@ class MessageService(MessageServiceInterface):
             mail = self._decrypt_mail(mail)
             if mail is not None:
                 message = Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
-                messages.append(message)
+                # 这里不加mail['send_from']的原因是如果对方也遵守协议，他会给自己发邮件，所以这一栏就是群聊当中的所有人
+                messages.append((message, mail['to']))
+                # messages.append(message)
         return messages
-        pass
 
     def get_all_messages(self, uuid):
         # get all message from data base dao
@@ -114,15 +110,15 @@ class MessageService(MessageServiceInterface):
 
     def notify(self, listener, messages):
         # to do
-        listener.updatemessages(messages)
-
-        print('notifyed')
+        listener.update_messages(messages)
+        print('notifyed')  # 这条日志始终没有出现
 
     # hash function
 
+    # 根据群聊所有成员算出uuid
     def _getuuid(self, accounts):
         accounts_name = copy.deepcopy(list(accounts))
-        accounts_name.append(self.user_config['account'])
+        # accounts_name.append(self.user_config['account'])
         accounts_name = sorted(accounts_name)
         names = ''
         for name in accounts_name:
@@ -200,3 +196,12 @@ if __name__ == '__main__':
     # 1048217874@qq.com
     # pengym_111@163.com
     # hvwoTxJndBEi8B4G
+
+    user_config = {
+        "account": "11510050@mail.sustc.edu.cn",
+        "password": "hvwoTxJndBEi8B4G",
+        "imap_server": "imap.exmail.qq.com",
+        "imap_port": 993,
+        "smtp_server": "smtp.exmail.qq.com",
+        "smtp_port": 465
+    }

@@ -28,7 +28,7 @@ class Chat_log(object):
             out += "{}\n{}\n".format(it.time_stmp, it.content)
         return out
 
-# TODO add flag set from current user
+# TODO 添加标识，标记这个信息是否是自己发出，如果是的话就显示在文本靠右的位置（与收到的信息区分）
 class Log(object):
     def __init__(self, content, time=None):
         if time is None:

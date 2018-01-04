@@ -163,17 +163,42 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
         self.add_group.set_user()
         self.groups = self.userdao.get_groups()
-        #self.init_contacts_log()
+        self.self_check()
+        self.init_contacts_log()
 
-    # init contacts_log
+    # check if current user is in database
+    # 自己一定要在contact这个表里面，否则member_in_group中会缺少自己的信息
+    def self_check(self):
+        bo = self.userdao.is_contact_exists(utils.get_current_user().account)
+        if bo:
+            pass
+        else:
+            user = utils.get_current_user()
+            name = 'YOU'
+            account = user.account
+            # TODO use PEM format key in string
+            pubkey = ""
+            trusted = True
+            is_blocked = True
+            current_user = Contact(name, account, pubkey, trusted, is_blocked)
+            self.userdao.add_contact(current_user)
+
+    # init contacts_log 这个数据结构存储了所有的对话，键值是对话的名字（显示在左边），对应的是一个Chat_logd对象，这个对象包含这个聊天的所有成员（包括自己），uuid等信息
     def init_contacts_log(self):
-        uids = self.userdao.get_groups()
-        for uid in uids:
-            group = self.userdao.get_group(uid)
-            self.contacts_log[group.name] = Chat_log(group.members, Chat_log.GROUP, group.name, uid)
+        groups = self.userdao.get_groups()
+        print(groups)
+        for gp in groups:
+            group = self.userdao.get_group(gp.group_uuid)
+            emails = []
+            for member in group.members:
+                emails.append(member.account)
+            print(emails)
+            self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
+            print(group.members)
             self.insert_contact(group.name)
-            group_messages = self.userdao.get_group_messages(uid)
+            group_messages = self.userdao.get_group_messages(gp.group_uuid)
             for message in group_messages:
+                print("add message ", message.content)
                 self.contacts_log[group.name].add_log(message.content, message.date)
         pass
 
@@ -206,7 +231,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         accounts_name = copy.deepcopy(list(accounts))
 
         # append current user uid
-        accounts_name.append(self.current_email)
+        # accounts_name.append(self.current_email)
 
         accounts_name = sorted(accounts_name)
         names = ''
@@ -232,7 +257,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.userdao.add_contact(contact)
 
             # add dialog to table member_in_group and group
-            self.userdao.add_group(user["name"], tuple(user["email"]))
+            self.userdao.add_group(user["name"], [user["email"], self.current_email])
+
             print("add new user", user)
             self.insert_contact(user["name"])
 
@@ -245,6 +271,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.listWidget.setCurrentItem(new_user)
         self.map_ui.textBrowser.clear()
 
+    # TODO　出现的菜单把自己强制勾选，因为新建一个群聊一定包含自己，将来发送消息的时候也会给自己发送邮件　收到外来群聊的时候可以保证统一性
     def creat_group(self):
         self.add_group.load_contact()
         if self.add_group.exec_():
@@ -317,6 +344,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.textBrowser.append(text)
         pass
 
+    # TODO 将自己发送的信息显示在右边 现在update_message方法一直没有被 message_service 调用 解决这个问题
+    # 给当前对话的所有成员发送邮件（包括自己） 这样自己可以有可解读的未读邮件，可以在update_message的时候显示出来
     def send_mess(self):
         text = self.map_ui.textEdit.toPlainText()
         contact = self.map_ui.listWidget.currentItem()
@@ -327,7 +356,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.map_ui.listWidget.setCurrentRow(0)
             contact = self.map_ui.listWidget.currentItem()
 
-        # TODO set flag sent from current user
+        # TODO 标记这条信息是自己发出的
         self.contacts_log[contact.text()].add_log(text, dt)
         self.map_ui.textEdit.clear()
 
@@ -336,14 +365,22 @@ class chatwin(QMainWindow, Ui_MainWindow):
         message = Message(self.contacts_log[contact.text()].uid, text, dt, self.current_email)
         print('send message: ', message.content)
         print('send to: ', receivers)
-        self.messgae_handler.send_message(receivers, message)
-        self.userdao.add_messages(message)
 
+        # TODO 确定发送成功再添加至数据库 这里为了测试
+        # 添加此纪录至数据库
+        self.userdao.add_messages(message)
+        self.messgae_handler.send_message(receivers, message)
+
+        # show message 不立即显示
+        # self.show_text_in_textBrowser(text, dt)
+
+    # TODO 完成发送图片的功能
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")
         print(pic_path)
         return pic_path[0]
 
+    # TODO 完成发送文件的功能
     def send_file(self):
         file_path = QFileDialog.getOpenFileName(self, 'Open File', 'C:\\Users')
         print(file_path)
