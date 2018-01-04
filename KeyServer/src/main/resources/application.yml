@@ -3,8 +3,10 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/keyserver
-    username: admin
-    password: qgJX59pQln8Q7lhgw7CN
+#    username: admin
+#    password: qgJX59pQln8Q7lhgw7CN
+    username: root
+    password: 123456
     dbcp:
           test-while-idle: true
           validation-query: SELECT 1

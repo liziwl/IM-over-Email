@@ -119,12 +119,9 @@ class MailService(MailServiceInterface):
 
     def send_mail(self, receiver, receivers, subject, content, attachments=None):
         account = self.user_config['account']
-        password = self.user_config['password']
-
         message = MIMEMultipart()
         message['From'] = account
         message['To'] = ';'.join(receivers)
-        # message['To'] = receivers
         message['Subject'] = subject
         message['Date'] = formatdate(localtime=True)
         message.attach(MIMEText(content))

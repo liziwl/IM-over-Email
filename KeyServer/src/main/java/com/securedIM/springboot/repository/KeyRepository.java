@@ -9,5 +9,8 @@ import javax.transaction.Transactional;
 public interface KeyRepository extends CrudRepository<Key, Integer>{
     public Key findByEmail(String email);
     public Key findById(int id);
+    @Override
     Key save(Key key);
+    @Override
+    void delete(Key key);
 }

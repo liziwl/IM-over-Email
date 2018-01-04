@@ -6,4 +6,5 @@ public interface KeyService {
     void addKey(Key key);
     String gerPublicKey(String email);
     Key getKeyByEmail(String email);
+    void delete(Key key);
 }

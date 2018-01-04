@@ -36,4 +36,9 @@ public class KeyServiceImpl implements KeyService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Key key){
+        keyRepository.delete(key);
+    }
 }

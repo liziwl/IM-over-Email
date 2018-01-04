@@ -2,6 +2,7 @@ package com.securedIM.springboot.controller;
 
 import com.securedIM.springboot.model.Key;
 import com.securedIM.springboot.service.KeyService;
+import org.hibernate.validator.constraints.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,28 @@ public class KeyController {
     @Autowired
     private KeyService keyService;
 
+    // add a key
     @PostMapping(value = "")
     public ResponseEntity<?> addKey(@RequestBody Key key){
-        if (keyService.getKeyByEmail(key.getEmail()) != null){
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        Key old_key = keyService.getKeyByEmail(key.getEmail());
+        if (old_key != null){
+            keyService.delete(old_key);
         }
         keyService.addKey(key);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    // delete a key
+    @DeleteMapping(value = "")
+    public ResponseEntity<?> removeKey(@RequestBody Map<String, String> body){
+        String email = body.get("email");
+        Key old_key = keyService.getKeyByEmail(email);
+        if (old_key == null){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else {
+            keyService.delete(old_key);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = "/public_key")
