@@ -53,6 +53,25 @@ class UserDao(object):
                 ])
             self.conn.commit()
 
+    def remove_contact(self, account):
+        if self.is_contact_exists(account):
+            c = self.conn.cursor()
+            c.execute(
+                "DELETE FROM contacts "
+                "WHERE account = ?", [account]
+            )
+            self.conn.commit()
+
+    def change_contact_block_state(self, account):
+        if self.is_contact_exists(account):
+            c = self.conn.cursor()
+            c.execute(
+                "UPDATE contacts "
+                "SET is_blocked = (CASE is_blocked WHEN 1 THEN 0 WHEN 0 THEN 1 END) "
+                "WHERE account = ?", [account]
+            )
+            self.conn.commit()
+
     def get_contacts(self):
         c = self.conn.cursor()
         c.execute(
@@ -165,16 +184,14 @@ class UserDao(object):
 
 
 if __name__ == '__main__':
-    userDao = UserDao('11510050@mail.sustc.edu.cn')
-    userDao.add_contact(Contact("John", "pengym_111@163.com", "123456", True, True))
-    userDao.add_group('面向对象', ['pengym_111@163.com'])
-    for group in userDao.get_groups():
-        print(group)
-
-        for message in userDao.get_group_messages(group.group_uuid):
-            print(message)
-
-    # please use your e-mail to try this :)
-    # message = Message("", 'hello', "", "pengym_111@163.com")
-    # userDao.add_messages(message)
-    print(userDao.get_group_messages('5e93a675-b9b5-3a21-9af7-64f042a4aa63'))
+    userDao = UserDao()
+    userDao.add_group('面向对象', ('12@qq.com', '1@qq.com'))
+    # userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
+    # for group in userDao.get_groups():
+    #     for member in group.members:
+    #         print(member.account)
+    #
+    #     for message in userDao.get_group_messages(group.group_uuid):
+    #         print(message)
+    userDao.change_contact_block_state("John@outlook.com")
+    userDao.remove_contact('John@outlook.com')
