@@ -53,6 +53,10 @@ class MailService(MailServiceInterface):
             ssl=True
         )
 
+        self.smtpObj = smtplib.SMTP()
+        self.smtpObj.connect(self.user_config['smtp_server'], self.user_config['smtp_port'])
+        self.smtpObj.login(self.user_config['account'], self.user_config['password'])
+
     # show a single mail
     def _show_mail(self, mail):
         print('-' * 100)
@@ -131,13 +135,11 @@ class MailService(MailServiceInterface):
             message.attach(part)
 
         try:
-            smtpObj = smtplib.SMTP()
-            smtpObj.connect(self.user_config['smtp_server'], self.user_config['smtp_port'])
-            smtpObj.login(account, password)
-            smtpObj.sendmail(account.format(account), receiver, message.as_string())
-            smtpObj.close()
+            self.smtpObj.sendmail(account.format(account), receiver, message.as_string())
+            self.smtpObj.close()
         except smtplib.SMTPException as e:
             print("Error: Unable to send email!")
+
 
 if __name__ == '__main__':
     user_config = {
