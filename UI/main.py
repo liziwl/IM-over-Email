@@ -32,7 +32,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
         if not self.conf.isVisible():
             account = self.account_lineEdit.text().strip()
             pwd = self.pwd_lineEdit.text().strip()
-
+            # TODO  UI 添加输入锁屏密码，然后生成uuid与数据库中uuid比对验证登陆
             # 如果帐号密码还未输入提示
             if not (account and pwd):
                 if self.alert.exec_() == 0:
@@ -59,10 +59,13 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                 # 生成钥匙
                 KeyService.generate_keys(account, self.user_config['lock_password'])
                 # 保存用户
+                # 找到lock_password的哈希值并保存，用于验证登陆
+                check_lock_password = str(uuid.uuid3(uuid.NAMESPACE_DNS, self.user_config['lock_password']))
                 new_user = User(
                     self.user_config['account'],
                     self.user_config['password'],
-                    self.user_config['lock_password'],
+                    # self.user_config['lock_password'],
+                    check_lock_password,
                     self.user_config['smtp_server'],
                     self.user_config['smtp_port'],
                     self.user_config['imap_server'],
