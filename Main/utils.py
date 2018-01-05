@@ -32,6 +32,16 @@ def get_user_dir(account):
     return os.path.abspath(path)
 
 
+def test_connection(account, password, imap_server):
+    import imaplib
+    mailbox = imaplib.IMAP4_SSL(imap_server)
+    try:
+        mailbox.login(account, password)
+        return True
+    except imaplib.IMAP4.error as e:
+        return False
+
 if __name__ == '__main__':
     print(get_current_user())
     print(get_user_dir("1048217874@qq.com"))
+    print(test_connection("pengym_111@163.com", "hvwoTxJndBEi8B4G", "imap.163.com"))

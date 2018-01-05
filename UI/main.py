@@ -5,7 +5,7 @@ from UI.chat import *
 from UI.config import *
 from Email.MessageService import *
 from Main.dao.main_dao import MainDao
-from Main.utils import set_current_user, get_user_dir, make_user_dir
+from Main.utils import set_current_user, get_user_dir, make_user_dir, test_connection
 from Main.dao.user_dao import UserDao
 
 from Security.KeyService import KeyService
@@ -68,7 +68,12 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_server'],
                     self.user_config['imap_port']
                 )
-                self.mainDao.insert_user(new_user)
+                if test_connection(self.user_config['account'], self.user_config['password'],
+                                   self.user_config['iamp_server']):
+                    self.mainDao.insert_user(new_user)
+                else:
+                    # TODO: show alert window here
+                    pass
                 # TODO add this user to contact table but not show
 
             # 这里已经获取了所有需要的信息，尝试登录
