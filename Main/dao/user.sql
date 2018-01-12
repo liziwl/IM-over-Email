@@ -10,7 +10,7 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 12/01/2018 21:26:47
+ Date: 12/01/2018 21:49:24
 */
 
 PRAGMA foreign_keys = false;
@@ -72,7 +72,7 @@ CREATE TABLE "messages" (
   "group_" integer,
   "id" integer,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("uuid")
 );
 
 -- ----------------------------
@@ -84,6 +84,6 @@ CREATE TABLE sqlite_sequence(name,seq);
 -- ----------------------------
 -- Auto increment value for attachments
 -- ----------------------------
-UPDATE "main"."sqlite_sequence" SET seq = 4 WHERE name = 'attachments';
+UPDATE "main"."sqlite_sequence" SET seq = 8 WHERE name = 'attachments';
 
 PRAGMA foreign_keys = true;
