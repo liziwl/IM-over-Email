@@ -75,15 +75,5 @@ CREATE TABLE "messages" (
   CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("uuid")
 );
 
--- ----------------------------
--- Table structure for sqlite_sequence
--- ----------------------------
-DROP TABLE IF EXISTS "sqlite_sequence";
-CREATE TABLE sqlite_sequence(name,seq);
-
--- ----------------------------
--- Auto increment value for attachments
--- ----------------------------
-UPDATE "main"."sqlite_sequence" SET seq = 8 WHERE name = 'attachments';
 
 PRAGMA foreign_keys = true;

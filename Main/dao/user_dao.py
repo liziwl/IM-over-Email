@@ -5,6 +5,7 @@ from Main.model.contact import Contact
 from Main.model.group import Group
 from Main.model.message import Message
 from Main.utils import get_user_dir
+from Main import utils
 import os
 
 

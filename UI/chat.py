@@ -191,7 +191,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
             group = self.userdao.get_group(gp.group_uuid)
             emails = []
             for member in group.members:
-                emails.append(member.account)
+                emails.append(member)
             print(emails)
             self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
             print(group.members)
@@ -211,12 +211,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
             print(message[0])
             if self.userdao.is_group_exists(message[0].group) is False:
                 members = str.split(message[1], ";")
-                # 将每个人添加为联系人 TODO 优化数据库
-                for member in members:
-                    if self.userdao.is_contact_exists(member) is False:
-                        contact = Contact(member, member, "", False, False)
-                        self.userdao.add_contact(contact)
-
                 self.userdao.add_group(message[0].group, members)
 
             group_name = self.userdao.get_group(message[0].group).name
@@ -270,7 +264,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.friend_name_label.setText(contact_name)
         self.map_ui.listWidget.insertItem(0, new_user)
         self.map_ui.listWidget.setCurrentItem(new_user)
-        self.map_ui.textBrowser.clear()
+        # self.map_ui.textBrowser.clear()
 
     # TODO　出现的菜单把自己强制勾选，因为新建一个群聊一定包含自己，将来发送消息的时候也会给自己发送邮件　收到外来群聊的时候可以保证统一性
     def creat_group(self):
