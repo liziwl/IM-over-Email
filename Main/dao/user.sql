@@ -10,7 +10,7 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 04/01/2018 23:17:09
+ Date: 12/01/2018 21:26:47
 */
 
 PRAGMA foreign_keys = false;
@@ -36,7 +36,7 @@ CREATE TABLE "contacts" (
   "public_key" text,
   "trusted" integer(1),
   "is_blocked" integer(1) DEFAULT 0,
-  "id" integer PRIMARY KEY AUTOINCREMENT
+  PRIMARY KEY ("account")
 );
 
 -- ----------------------------
@@ -55,12 +55,10 @@ CREATE TABLE "groups" (
 DROP TABLE IF EXISTS "member_in_group";
 CREATE TABLE "member_in_group" (
   "id" integer,
-  "member_id" integer,
   "group_id" integer,
+  "account" text,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_member_id" FOREIGN KEY ("member_id") REFERENCES "contacts" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_id") REFERENCES "groups" ("uuid") ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT "unique_record" UNIQUE ("member_id" ASC, "group_id" ASC) ON CONFLICT FAIL
+  CONSTRAINT "fk_group_id" FOREIGN KEY ("group_id") REFERENCES "groups" ("uuid") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- ----------------------------
@@ -76,3 +74,16 @@ CREATE TABLE "messages" (
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("group_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+-- ----------------------------
+-- Table structure for sqlite_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS "sqlite_sequence";
+CREATE TABLE sqlite_sequence(name,seq);
+
+-- ----------------------------
+-- Auto increment value for attachments
+-- ----------------------------
+UPDATE "main"."sqlite_sequence" SET seq = 4 WHERE name = 'attachments';
+
+PRAGMA foreign_keys = true;
