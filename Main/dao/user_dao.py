@@ -4,8 +4,7 @@ import sqlite3
 from Main.model.contact import Contact
 from Main.model.group import Group
 from Main.model.message import Message
-from Main.utils import get_current_user, get_user_dir
-from Main import utils
+from Main.utils import get_user_dir
 import os
 
 
@@ -110,21 +109,10 @@ class UserDao(object):
                 "INSERT INTO groups(name, uuid) "
                 "VALUES (?, ?)", [group_name, group_uuid]
             )
-            if len(accounts) > 1:
-                accounts_str = '(' + ','.join(['"' + s + '"' for s in accounts]) + ')'
-                c.execute(
-                    "INSERT INTO member_in_group(member_id, group_id) "
-                    "SELECT id, ? FROM contacts "
-                    "WHERE account IN %s" % accounts_str, [group_uuid]
-                )
-            elif len(accounts) == 1:
-                new_member_account = accounts[0]
-                print(new_member_account)
-                c.execute(
-                    "INSERT INTO member_in_group(member_id, group_id) "
-                    "SELECT id, ? FROM contacts "
-                    "WHERE account = ?", [group_uuid, new_member_account]
-                )
+            c.executemany(
+                "INSERT INTO member_in_group(group_id, account) "
+                "VALUES (?, ?)", [(group_uuid, account) for account in accounts]
+            )
             self.conn.commit()
 
     def is_group_exists(self, group_uuid):
@@ -135,25 +123,22 @@ class UserDao(object):
         )
         return c.fetchone() is not None
 
-    def get_group(self, uuid):
+    def get_group(self, group_uuid):
         c = self.conn.cursor()
         c.execute(
             "SELECT name FROM groups "
-            "WHERE uuid = ? ", [uuid]
+            "WHERE uuid = ? ", [group_uuid]
         )
         group_name = c.fetchone()[0]
         c = self.conn.cursor()
         c.execute(
-            "SELECT name, account, public_key, trusted, is_blocked FROM contacts "
-            "INNER JOIN "
-            "(SELECT member_id FROM member_in_group "
-            "WHERE group_id = ?) AS member_ids "
-            "ON contacts.id = member_ids.member_id", [uuid]
+            "SELECT account FROM member_in_group "
+            "WHERE group_id = ?", [group_uuid]
         )
         members = [
-            Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
+            a[0] for a in c.fetchall()
         ]
-        return Group(group_name, members, uuid)
+        return Group(group_name, members, group_uuid)
 
     def add_messages(self, message):
         c = self.conn.cursor()
@@ -221,8 +206,8 @@ if __name__ == '__main__':
     userDao.add_messages(msg)
 
     for group in userDao.get_groups():
-        for member in group.members:
-            print(member.account)
+        print(group.name)
+        print(group.members)
 
         for message in userDao.get_group_messages(group.group_uuid):
             print(message)
