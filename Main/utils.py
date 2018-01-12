@@ -1,5 +1,7 @@
 import configparser
 import os.path
+import copy
+import uuid
 from Main.dao.main_dao import MainDao
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -40,6 +42,16 @@ def test_connection(account, password, imap_server):
         return True
     except imaplib.IMAP4.error as e:
         return False
+
+
+def get_uuid(accounts):
+    accounts_names = copy.deepcopy(accounts)
+    accounts_names = sorted(accounts_names)
+    seed = ""
+    for name in accounts_names:
+        seed = name + seed
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, seed))
+
 
 if __name__ == '__main__':
     print(get_current_user())

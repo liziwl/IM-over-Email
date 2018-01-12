@@ -72,7 +72,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.user_config['imap_port']
                 )
                 if test_connection(self.user_config['account'], self.user_config['password'],
-                                   self.user_config['iamp_server']):
+                                   self.user_config['imap_server']):
                     self.mainDao.insert_user(new_user)
                 else:
                     # TODO: show alert window here

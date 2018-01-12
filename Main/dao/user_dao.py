@@ -5,6 +5,7 @@ from Main.model.contact import Contact
 from Main.model.group import Group
 from Main.model.message import Message
 from Main.utils import get_current_user, get_user_dir
+from Main import utils
 import os
 
 
@@ -26,7 +27,7 @@ class UserDao(object):
         database_path = os.path.join(get_user_dir(self.account), 'user.db')
         print(database_path)
         try:
-            self.conn = sqlite3.connect(database_path)
+            self.conn = sqlite3.connect(database_path, check_same_thread=False)
             if new:
                 current_dir = os.path.dirname(__file__)
                 script_path = os.path.join(current_dir, 'user.sql')
@@ -102,15 +103,8 @@ class UserDao(object):
         return result
 
     def add_group(self, group_name, accounts):
-        import uuid
         c = self.conn.cursor()
-        accounts_name = [account for account in accounts]
-        accounts_name.append(self.account)
-        accounts_name = sorted(accounts_name)
-        names = ''
-        for name in accounts_name:
-            names = name + names
-        group_uuid = str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
+        group_uuid = utils.get_uuid(accounts)
         if not self.is_group_exists(group_uuid):
             c.execute(
                 "INSERT INTO groups(name, uuid) "
@@ -222,7 +216,8 @@ if __name__ == '__main__':
     # save message with attachments
     buf1 = open('test.jpg', 'rb').read()
     buf2 = open('user.sql', 'rb').read()
-    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "Happy New Year!", "2018-1-1", "pengym_111@163.com", attachments=[buf1, buf2])
+    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "Happy New Year!", "2018-1-1", "pengym_111@163.com",
+                  attachments=[buf1, buf2])
     userDao.add_messages(msg)
 
     for group in userDao.get_groups():
@@ -237,5 +232,3 @@ if __name__ == '__main__':
 
     userDao.change_contact_block_state("John@outlook.com")
     userDao.remove_contact('John@outlook.com')
-
-

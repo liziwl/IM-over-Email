@@ -208,42 +208,43 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def update_messages(self, messages):
         for message in messages:
             # message:(message,[group_emails])
-            group_name = self.userdao.get_group(message[0].group)
-            if self.contacts_log[group_name] is None:
+            print(message[0])
+            if self.userdao.is_group_exists(message[0].group) is False:
+                members = str.split(message[1], ";")
+                # 将每个人添加为联系人 TODO 优化数据库
+                for member in members:
+                    if self.userdao.is_contact_exists(member) is False:
+                        contact = Contact(member, member, "", False, False)
+                        self.userdao.add_contact(contact)
+
+                self.userdao.add_group(message[0].group, members)
+
+            group_name = self.userdao.get_group(message[0].group).name
+
+            if self.contacts_log.get(group_name) is None:
                 self.contacts_log[group_name] = Chat_log(message[1], Chat_log.SINGLE, message[0].sender,
                                                          uid=message[0].group)
                 # use uid as group name
 
                 self.insert_contact(message[0].group)
 
-            self.contacts_log[group_name].add_log(message.content, message.date)
-
+            self.contacts_log[group_name].add_log(message[0].content, message[0].date)
+            self.userdao.add_messages(message[0])
         print("show message")
         # refresh message if the user is in current group
         contact = self.map_ui.listWidget.currentItem().text()
         if group_name == contact:
-            self.show_text_in_textBrowser(message.content, message.date)
+            self.show_text_in_textBrowser(message[0].content, message[0].date)
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
-
-    def _getuuid(self, accounts):
-        accounts_name = copy.deepcopy(list(accounts))
-
-        # append current user uid
-        # accounts_name.append(self.current_email)
-
-        accounts_name = sorted(accounts_name)
-        names = ''
-        for name in accounts_name:
-            names = name + names
-        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
 
     def new_contact(self):
         if self.add_win.exec_():
             user = self.add_win.get_newcontact()
             print(user)
-            uid = self._getuuid(user["name"])
+            # uid = self._getuuid(user["name"])
+            uid = utils.get_uuid(user["name"])
             self.contacts_log[user["name"]] = Chat_log([user["email"], self.current_email], Chat_log.SINGLE,
                                                        user["name"], uid=uid)
 

@@ -106,7 +106,7 @@ class KeyService(KeyServiceInterface):
     def getPrivateKey(account, password):
         try:
             key_path = os.path.join(get_user_dir(account), 'private_key')
-            with open(account + "/private_key", 'rb') as f:
+            with open(key_path, 'rb') as f:
                 pk = f.read()
                 f.close()
             random.seed(password)

@@ -12,6 +12,7 @@ from Main.model.message import Message
 import threading
 from Main.dao.user_dao import UserDao
 from Security.KeyService import KeyService
+from Main import utils
 
 # !! just fot test
 # we need this from KeyService
@@ -86,7 +87,9 @@ class MessageService(MessageServiceInterface):
 
     # 检查可以解密的未读消息，并且返回给chat
     def _listen_message(self):
+        print('start listen')
         while True:
+            print('listen')
             new_messages = self._get_unseen_message()
             time.sleep(5)
             if len(new_messages) != 0:
@@ -94,11 +97,12 @@ class MessageService(MessageServiceInterface):
 
     def _get_unseen_message(self):
         mails = self.mailservice.get_unseen_mails_in_folder('INBOX')
+        print(mails)
         messages = []
         for mail in mails:
             mail = self._decrypt_mail(mail)
             if mail is not None:
-                message = Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
+                message = Message(mail['subject'], mail['text'][0]['text'], mail['date'], mail['from_email'])
                 # 这里不加mail['send_from']的原因是如果对方也遵守协议，他会给自己发邮件，所以这一栏就是群聊当中的所有人
                 messages.append((message, mail['to']))
                 # messages.append(message)
@@ -109,21 +113,9 @@ class MessageService(MessageServiceInterface):
         return self.userdao.get_group_messages(uuid)
 
     def notify(self, listener, messages):
-        # to do
         listener.update_messages(messages)
-        print('notifyed')  # 这条日志始终没有出现
 
     # hash function
-
-    # 根据群聊所有成员算出uuid
-    def _getuuid(self, accounts):
-        accounts_name = copy.deepcopy(list(accounts))
-        # accounts_name.append(self.user_config['account'])
-        accounts_name = sorted(accounts_name)
-        names = ''
-        for name in accounts_name:
-            names = name + names
-        return str(uuid.uuid3(uuid.NAMESPACE_DNS, names))
 
     # receiver : send to
     # receivers: 收件人
@@ -147,7 +139,8 @@ class MessageService(MessageServiceInterface):
     def send_message(self, accounts, message):
         # just send content
         content = message.content
-        uid = self._getuuid(accounts)
+        # uid = self._getuuid(accounts)
+        uid = utils.get_uuid(accounts)
         print('ready to send')
         for recevier in accounts:
             self._send_message_single(recevier, accounts, content, [], uid)
