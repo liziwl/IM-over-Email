@@ -88,6 +88,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         row_num = self.cr_win.tableWidget.rowCount()
         group_name = self.cr_win.lineEdit.text()
         group_member = list()
+
         # add current user to the group
         group_member.append(utils.get_current_user().account)
         for i in range(row_num):

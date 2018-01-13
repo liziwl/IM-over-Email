@@ -163,11 +163,10 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
         self.add_group.set_user()
         self.groups = self.userdao.get_groups()
-        self.self_check()
+        # self.self_check()
         self.init_contacts_log()
 
     # check if current user is in database
-    # 自己一定要在contact这个表里面，否则member_in_group中会缺少自己的信息
     def self_check(self):
         bo = self.userdao.is_contact_exists(utils.get_current_user().account)
         if bo:
@@ -235,10 +234,9 @@ class chatwin(QMainWindow, Ui_MainWindow):
         if self.add_win.exec_():
             user = self.add_win.get_newcontact()
             print(user)
-            # uid = self._getuuid(user["name"])
-            uid = utils.get_uuid(user["name"])
-            self.contacts_log[user["name"]] = Chat_log([user["email"], self.current_email], Chat_log.SINGLE,
-                                                       user["name"], uid=uid)
+            # uid = utils.get_uuid(user["name"])
+            # self.contacts_log[user["name"]] = Chat_log([user["email"], self.current_email], Chat_log.SINGLE,
+            #                                            user["name"], uid=uid)
 
             # TODO add contact to database
             pubkey = ""
@@ -250,10 +248,10 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.userdao.add_contact(contact)
 
             # add dialog to table member_in_group and group
-            self.userdao.add_group(user["name"], [user["email"], self.current_email])
+            # self.userdao.add_group(user["name"], [user["email"], self.current_email])
 
             print("add new user", user)
-            self.insert_contact(user["name"])
+            # self.insert_contact(user["name"])
 
     def insert_contact(self, contact_name):
         new_user = QListWidgetItem(contact_name)
@@ -272,8 +270,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
             new_group.setIcon(self.group_fig)
             self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"], Chat_log.GROUP,
                                                                         self.add_group.re_dat["name"])
-            # show dialog
-            self.insert_contact(self.add_group.re_dat["name"])
+
+            #  check group exist
+            uid = utils.get_uuid(self.add_group.re_dat["group"])
+            if self.userdao.is_group_exists(uid):
+                # TODO UI warning
+                print("Group exist")
+            else:
+                # show dialog
+                self.insert_contact(self.add_group.re_dat["name"])
 
     def get_contact_list(self):
         out = []
