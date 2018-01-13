@@ -189,9 +189,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print(groups)
         for gp in groups:
             group = self.userdao.get_group(gp.group_uuid)
-            emails = []
-            for member in group.members:
-                emails.append(member)
+
+            emails = group.members
             print(emails)
             self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
             print(group.members)
@@ -199,8 +198,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
             group_messages = self.userdao.get_group_messages(gp.group_uuid)
             for message in group_messages:
                 print("add message ", message.content)
-                self.contacts_log[group.name].add_log(message.content, message.date)
-        pass
+                self.contacts_log[group.name].add_log(message.content, message.date, message.sender)
 
     # TODO modify group name
 
@@ -222,13 +220,13 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
                 self.insert_contact(message[0].group)
 
-            self.contacts_log[group_name].add_log(message[0].content, message[0].date)
+            self.contacts_log[group_name].add_log(message[0].content, message[0].date, message[0].sender)
             self.userdao.add_messages(message[0])
         print("show message")
         # refresh message if the user is in current group
         contact = self.map_ui.listWidget.currentItem().text()
         if group_name == contact:
-            self.show_text_in_textBrowser(message[0].content, message[0].date)
+            self.show_text_in_textBrowser(message[0].content, message[0].sender + " " + message[0].date)
 
     def set_message_handler(self, handler):
         self.messgae_handler = handler
@@ -352,7 +350,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
             contact = self.map_ui.listWidget.currentItem()
 
         # TODO 标记这条信息是自己发出的
-        self.contacts_log[contact.text()].add_log(text, dt)
+
+        # self.contacts_log[contact.text()].add_log(text, dt)
         self.map_ui.textEdit.clear()
 
         receivers = self.contacts_log[contact.text()].email
@@ -362,12 +361,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print('send to: ', receivers)
 
         # TODO 确定发送成功再添加至数据库 这里为了测试
-        # 添加此纪录至数据库
-        self.userdao.add_messages(message)
         self.messgae_handler.send_message(receivers, message)
-
-        # show message 不立即显示
-        # self.show_text_in_textBrowser(text, dt)
 
     # TODO 完成发送图片的功能
     def send_pic(self):

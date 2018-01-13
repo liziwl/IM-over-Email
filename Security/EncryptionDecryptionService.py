@@ -52,8 +52,7 @@ class EncryptionDecryption(EncryptionDecryptionServiceInterface):
 
     @staticmethod
     def encrypt_attachments(attachments, public_key):
-        if attachments is []:
-            return None
+        # TODO 没有附件时不加密
         encrypted_attachments = []
         chacha20_key, nonce = EncryptionDecryption._generate_chanchan20_key()
         encrypted_chacha20_key = EncryptionDecryption._rsa_encrypt(chacha20_key, public_key)

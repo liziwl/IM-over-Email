@@ -185,7 +185,7 @@ class UserDao(object):
 
         for m in msg_body:
             message_id = m[0]
-            messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachment_map[message_id]))
+            messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachment_map.get(message_id)))
         return messages
 
 

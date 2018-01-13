@@ -57,6 +57,9 @@ class MailService(MailServiceInterface):
         self.smtpObj.connect(self.user_config['smtp_server'], self.user_config['smtp_port'])
         self.smtpObj.login(self.user_config['account'], self.user_config['password'])
 
+    def __del__(self):
+        self.smtpObj.close()
+
     # show a single mail
     def _show_mail(self, mail):
         print('-' * 100)
@@ -133,9 +136,8 @@ class MailService(MailServiceInterface):
 
         try:
             self.smtpObj.sendmail(account.format(account), receiver, message.as_string())
-            self.smtpObj.close()
         except smtplib.SMTPException as e:
-            print("Error: Unable to send email!")
+            print("Error: Unable to send email!", receiver)
 
 
 if __name__ == '__main__':

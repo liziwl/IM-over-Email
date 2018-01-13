@@ -1,16 +1,10 @@
 from Security.EncryptionDecryptionService import EncryptionDecryption
 from Email.MailService import MailService
-import uuid
-import copy
-# for testing
 import rsa
-import os
 import Main
 import threading
 import time
 from Main.model.message import Message
-import threading
-from Main.dao.user_dao import UserDao
 from Security.KeyService import KeyService
 from Main import utils
 
@@ -64,7 +58,6 @@ class MessageService(MessageServiceInterface):
         self.userdao = userdao
         self.listener = listener
         self.load_privkey()
-        # TODO　这里调用观察者的updatemessages方法，但是并有效果，请测试（没有执行这个线程）
         listen = threading.Thread(target=self._listen_message, args=())
         listen.start()
 
@@ -91,7 +84,8 @@ class MessageService(MessageServiceInterface):
         while True:
             print('listen')
             new_messages = self._get_unseen_message()
-            time.sleep(5)
+            # 每过这段时间检查一下邮箱
+            time.sleep(3)
             if len(new_messages) != 0:
                 self.notify(listener=self.listener, messages=new_messages)
 
@@ -115,8 +109,6 @@ class MessageService(MessageServiceInterface):
     def notify(self, listener, messages):
         listener.update_messages(messages)
 
-    # hash function
-
     # receiver : send to
     # receivers: 收件人
     def _send_message_single(self, receiver, receivers, message, binary_attachments, uuid):
@@ -125,16 +117,6 @@ class MessageService(MessageServiceInterface):
         ct_message = EncryptionDecryption.encrypt_mail(message, pubkey)
         self.mailservice.send_mail(receiver, receivers, subject=uuid, content=ct_message,
                                    attachments=encrypted_binary_files)
-
-    # def send_message(self, receivers, message, attachments_path, uid=None):
-    #     binary_attachments = []
-    #     for f in attachments_path or []:
-    #         with open(f, 'rb') as fil:
-    #             binary_attachments.append({'filename': os.path.basename(f), 'data': fil.read()})
-    #     if uid is None:
-    #         uid = self._getuuid(receivers)
-    #     for receiver in receivers:
-    #         self._send_message_single(receiver, receivers, message, binary_attachments, uid)
 
     def send_message(self, accounts, message):
         # just send content
