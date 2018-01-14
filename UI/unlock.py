@@ -60,6 +60,27 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
         icon.addPixmap(QtGui.QPixmap("resource\\chat.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
+    def condition_show(self):
+        '''
+        初始化完调用这个show，不要调用内置的show窗口
+        '''
+        if self.has_account(False):
+            self.show()
+        else:
+            self.login_win.show()
+            self.close()
+
+    def has_account(self, condition):
+        '''
+        检查是否有历史账户
+        :return: bool值表示，True 有账户，False 无账户
+        '''
+        # 这里condition是测试用的，这里写数据库查询信息，完成后condition可以删除。
+        if condition:
+            return True
+        else:
+            return False
+
     def accept(self):
         self.authorize()
 
@@ -78,5 +99,5 @@ class unlock_win(QtWidgets.QWidget, Ui_unlock):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     ex = unlock_win()
-    ex.show()
+    ex.condition_show()  # 显示窗口
     sys.exit(app.exec_())
