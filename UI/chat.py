@@ -156,6 +156,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
                                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+        self.attachments = list()
+
     def set_user(self):
         # TODO 单例模式
         self.current_email = utils.get_current_user().account
@@ -179,7 +181,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
             pubkey = ""
             trusted = True
             is_blocked = True
-            current_user = Contact(name, account, pubkey, trusted, is_blocked)
+            current_user = Contact(name, account, pubkey, trusted)
             self.userdao.add_contact(current_user)
 
     # init contacts_log 这个数据结构存储了所有的对话，键值是对话的名字（显示在左边），对应的是一个Chat_logd对象，这个对象包含这个聊天的所有成员（包括自己），uuid等信息
@@ -242,9 +244,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
             pubkey = ""
             name = user["name"]
             trusted = False
-            is_blocked = False
 
-            contact = Contact(name, user["email"], pubkey, trusted, is_blocked)
+            contact = Contact(name, user["email"], pubkey, trusted)
             self.userdao.add_contact(contact)
 
             # add dialog to table member_in_group and group
@@ -361,24 +362,25 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
         receivers = self.contacts_log[contact.text()].email
         print(receivers)
-        message = Message(self.contacts_log[contact.text()].uid, text, dt, self.current_email)
+
+        print(len(self.attachments))
+        message = Message(self.contacts_log[contact.text()].uid, text, dt, self.current_email, self.attachments)
+
         print('send message: ', message.content)
         print('send to: ', receivers)
 
         # TODO 确定发送成功再添加至数据库 这里为了测试
         self.messgae_handler.send_message(receivers, message)
+        # clear attachments after click 'send' button
+        self.attachments = []
 
-    # TODO 完成发送图片的功能
     def send_pic(self):
-        pic_path = QFileDialog.getOpenFileName(self, 'Open Image', 'C:\\Users', "Image Files (*.png *.jpg *.bmp)")
-        print(pic_path)
-        return pic_path[0]
+        pic_path = QFileDialog.getOpenFileName(self, 'Open Image', '~', "Image Files (*.png *.jpg *.bmp)")[0]
+        self.attachments.append(pic_path)
 
-    # TODO 完成发送文件的功能
     def send_file(self):
-        file_path = QFileDialog.getOpenFileName(self, 'Open File', 'C:\\Users')
-        print(file_path)
-        return file_path[0]
+        file_path = QFileDialog.getOpenFileName(self, 'Open File', '~')[0]
+        self.attachments.append(file_path)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return and (event.modifiers() == QtCore.Qt.ControlModifier):

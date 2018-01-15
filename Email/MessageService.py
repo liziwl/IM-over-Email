@@ -67,22 +67,9 @@ class MessageService(MessageServiceInterface):
         # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)　这里的锁屏密码用来加密私钥，锁屏密码现在默认都是123456 这个字端在UI端还无法设置，请完善 并且利用这个进行登陆验证
         self.privkey = KeyService.getPrivateKey(self.user_config["account"], "123456")
 
-    def get_unseen_message(self, uuid):
-        mails = self.mailservice.get_unseen_mails_in_folder_with_subject('INBOX', str(uuid))
-        messages = []
-        for mail in mails:
-            mail = self._decrypt_mail(mail)
-            if mail is not None:
-                message = Main.model.message.Message(uuid, mail['text'][0]['text'], mail['date'], mail['from_email'])
-
-                self.userdao.add_messages(message)
-        return messages
-
     # 检查可以解密的未读消息，并且返回给chat
     def _listen_message(self):
-        print('start listen')
         while True:
-            print('listen')
             new_messages = self._get_unseen_message()
             # 每过这段时间检查一下邮箱
             time.sleep(3)
@@ -91,12 +78,17 @@ class MessageService(MessageServiceInterface):
 
     def _get_unseen_message(self):
         mails = self.mailservice.get_unseen_mails_in_folder('INBOX')
-        print(mails)
         messages = []
         for mail in mails:
             mail = self._decrypt_mail(mail)
             if mail is not None:
-                message = Message(mail['subject'], mail['text'][0]['text'], mail['date'], mail['from_email'])
+                # if has attachment, the first 2 are keys
+                if len(mail['attachments']) > 2:
+                    attachments = [
+                        f['data'] for f in mail['attachments'][2:]
+                    ]
+                message = Message(mail['subject'],
+                                  mail['text'][0]['text'], mail['date'], mail['from_email'], attachments)
                 # 这里不加mail['send_from']的原因是如果对方也遵守协议，他会给自己发邮件，所以这一栏就是群聊当中的所有人
                 messages.append((message, mail['to']))
                 # messages.append(message)
@@ -119,16 +111,19 @@ class MessageService(MessageServiceInterface):
                                    attachments=encrypted_binary_files)
 
     def send_message(self, accounts, message):
+        import uuid
         # just send content
         content = message.content
         # uid = self._getuuid(accounts)
         uid = utils.get_uuid(accounts)
-        print('ready to send')
-        for recevier in accounts:
-            self._send_message_single(recevier, accounts, content, [], uid)
-
-        print('have sent')
-        # self.userdao.add_messages(message)
+        attachments = [
+            {
+                "filename": str(uuid.uuid4()),
+                "data": open(path, 'rb').read()
+            } for path in message.attachments
+        ]
+        for receiver in accounts:
+            self._send_message_single(receiver, accounts, content, attachments, uid)
 
     def _decrypt_mail(self, mail):
         try:
