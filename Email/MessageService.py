@@ -171,12 +171,3 @@ if __name__ == '__main__':
     # 1048217874@qq.com
     # pengym_111@163.com
     # hvwoTxJndBEi8B4G
-
-    user_config = {
-        "account": "11510050@mail.sustc.edu.cn",
-        "password": "hvwoTxJndBEi8B4G",
-        "imap_server": "imap.exmail.qq.com",
-        "imap_port": 993,
-        "smtp_server": "smtp.exmail.qq.com",
-        "smtp_port": 465
-    }

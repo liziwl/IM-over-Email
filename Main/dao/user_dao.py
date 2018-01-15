@@ -43,14 +43,13 @@ class UserDao(object):
         if not self.is_contact_exists(contact.account):
             c = self.conn.cursor()
             c.execute(
-                "INSERT INTO contacts(name, account, public_key, trusted, is_blocked) "
-                "VALUES(?, ?, ?, ?, ?)",
+                "INSERT INTO contacts(name, account, public_key, trusted) "
+                "VALUES(?, ?, ?, ?)",
                 [
                     contact.name,
                     contact.account,
                     contact.public_key,
-                    contact.trusted,
-                    contact.is_blocked
+                    contact.trusted
                 ])
             self.conn.commit()
 
@@ -63,23 +62,37 @@ class UserDao(object):
             )
             self.conn.commit()
 
-    def change_contact_block_state(self, account):
-        if self.is_contact_exists(account):
+
+    def is_account_blocked(self, account):
+        c = self.conn.cursor()
+        c.execute(
+            "SELECT * FROM black_list "
+            "WHERE account=?", [account]
+        )
+        return c.fetchone() is not None
+
+    def block_account(self, account):
+        if not self.is_account_blocked(account):
             c = self.conn.cursor()
             c.execute(
-                "UPDATE contacts "
-                "SET is_blocked = (CASE is_blocked WHEN 1 THEN 0 WHEN 0 THEN 1 END) "
-                "WHERE account = ?", [account]
+                "INSERT INTO black_list(account) "
+                "VALUES (?)", [account]
             )
-            self.conn.commit()
+
+    def unblock_account(self, account):
+        c = self.conn.cursor()
+        c.execute(
+            "DELETE FROM black_list "
+            "WHERE account=?", [account]
+        )
 
     def get_contacts(self):
         c = self.conn.cursor()
         c.execute(
-            "SELECT name, account, public_key, trusted, is_blocked FROM contacts"
+            "SELECT name, account, public_key, trusted FROM contacts"
         )
         return [
-            Contact(r[0], r[1], r[2], r[3] == 1, r[4] == 1) for r in c.fetchall()
+            Contact(r[0], r[1], r[2], r[3] == 1) for r in c.fetchall()
         ]
 
     def is_contact_exists(self, account):
@@ -163,6 +176,8 @@ class UserDao(object):
         c = self.conn.cursor()
         c.execute(
             "SELECT id, group_, content, date_, sender FROM messages "
+            "INNER JOIN black_list "
+            "ON black_list.account <> messages.sender "
             "WHERE group_ = ? "
             "ORDER BY date_"
             , [group_uuid]
@@ -185,7 +200,10 @@ class UserDao(object):
 
         for m in msg_body:
             message_id = m[0]
-            messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachment_map.get(message_id)))
+            attachments = attachment_map.get(message_id)
+            if attachments is None:
+                attachments = list()
+            messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachments))
         return messages
 
 
@@ -193,8 +211,10 @@ if __name__ == '__main__':
     userDao = UserDao("pengym_111@163.com")
 
     # add user
-    userDao.add_contact(Contact("John", "John@outlook.com", "123456", True, True))
-    userDao.add_contact(Contact("Jack", "Jack@outlook.com", "123456", True, True))
+    userDao.add_contact(Contact("John", "John@outlook.com", "123456", True))
+    userDao.add_contact(Contact("Jack", "Jack@outlook.com", "123456", True))
+    # block John
+    userDao.block_account("John@outlook.com")
 
     # add group
     userDao.add_group('面向对象', ('John@outlook.com', 'Jack@outlook.com'))
@@ -202,10 +222,11 @@ if __name__ == '__main__':
     # save message with attachments
     buf1 = open('test.jpg', 'rb').read()
     buf2 = open('user.sql', 'rb').read()
-    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "Happy New Year!", "2018-1-1", "pengym_111@163.com",
+    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "This is John", "2018-1-1", "John@outlook.com",
                   attachments=[buf1, buf2])
     userDao.add_messages(msg)
 
+    # John is blocked, so his msg will not be shown
     for group in userDao.get_groups():
         print(group.name)
         print(group.members)
@@ -216,5 +237,9 @@ if __name__ == '__main__':
             for f in message.attachments:
                 print(repr(str(f)))
 
-    userDao.change_contact_block_state("John@outlook.com")
-    userDao.remove_contact('John@outlook.com')
+    # unblock John
+    userDao.unblock_account("John@outlook.com")
+    if userDao.is_account_blocked("John@outlook.com"):
+        print("John is blocked!")
+    else:
+        print("John is not blocked!")
