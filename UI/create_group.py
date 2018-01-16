@@ -52,7 +52,8 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         self.setWindowIcon(icon)
 
     def set_user(self):
-        self.userDao = UserDao(utils.get_current_user().account)
+        self.current_email = utils.get_current_user().account
+        self.userDao = UserDao(self.current_email)
         self.contacts = self.userDao.get_contacts()
         self.load_contact()
 
@@ -90,7 +91,7 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         group_member = list()
 
         # add current user to the group
-        group_member.append(utils.get_current_user().account)
+        group_member.append(self.current_email)
         for i in range(row_num):
             item_data = self.cr_win.tableWidget.item(i, 0)
             if item_data.checkState() == QtCore.Qt.Checked:

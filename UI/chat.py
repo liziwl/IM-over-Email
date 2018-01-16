@@ -167,22 +167,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
         # self.self_check()
         self.init_contacts_log()
 
-    # check if current user is in database
-    def self_check(self):
-        bo = self.userdao.is_contact_exists(utils.get_current_user().account)
-        if bo:
-            pass
-        else:
-            user = utils.get_current_user()
-            name = 'YOU'
-            account = user.account
-            # TODO use PEM format key in string
-            pubkey = ""
-            trusted = True
-            is_blocked = True
-            current_user = Contact(name, account, pubkey, trusted)
-            self.userdao.add_contact(current_user)
-
     # init contacts_log 这个数据结构存储了所有的对话，键值是对话的名字（显示在左边），对应的是一个Chat_logd对象，这个对象包含这个聊天的所有成员（包括自己），uuid等信息
     def init_contacts_log(self):
         groups = self.userdao.get_groups()
@@ -223,8 +207,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
             self.contacts_log[group_name].add_log(message[0].content, message[0].date, message[0].sender)
             self.userdao.add_messages(message[0])
             # save attachments into user dir
-            # TODO: 修改get_current_user
-            user_attachments_dir = os.path.join(utils.get_user_dir(get_current_user().account), 'FileRecv')
+
+            user_attachments_dir = os.path.join(utils.get_user_dir(self.current_email), 'FileRecv')
             for f in message[0].attachments:
                 path = os.path.join(user_attachments_dir, f['filename'])
                 data = f['data']
