@@ -160,12 +160,12 @@ class UserDao(object):
             "INSERT INTO messages(group_, content, date_, sender) "
             "VALUES (?, ?, ?, ?)", [message.group, message.content, message.date, message.sender]
         )
-        for buff in message.attachments:
+        for f in message.attachments:
             c.execute(
-                "INSERT INTO attachments(message_id, content) "
-                "SELECT id, ? FROM messages "
+                "INSERT INTO attachments(message_id, filename, data) "
+                "SELECT id, ?, ? FROM messages "
                 "WHERE group_ = ? "
-                "AND content = ?", [memoryview(buff), message.group, message.content]
+                "AND content = ?", [f['filename'], memoryview(f['data']), message.group, message.content]
             )
         self.conn.commit()
 
@@ -187,16 +187,22 @@ class UserDao(object):
         # get attachments
         c = self.conn.cursor()
         c.execute(
-            "SELECT message_id, content FROM attachments "
+            "SELECT message_id, filename, data FROM attachments "
         )
         # message_id 到 attachment buffer list的map
         attachment_map = {}
         for a in c.fetchall():
             message_id = a[0]
-            buff = a[1]
+            filename = a[1]
+            data = a[2]
             if message_id not in attachment_map:
                 attachment_map[message_id] = list()
-            attachment_map[message_id].append(buff)
+            attachment_map[message_id].append(
+                {
+                    'filename': filename,
+                    'data': data
+                }
+            )
 
         for m in msg_body:
             message_id = m[0]
@@ -220,10 +226,14 @@ if __name__ == '__main__':
     userDao.add_group('面向对象', ('John@outlook.com', 'Jack@outlook.com'))
 
     # save message with attachments
-    buf1 = open('test.jpg', 'rb').read()
-    buf2 = open('user.sql', 'rb').read()
-    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "This is John", "2018-1-1", "John@outlook.com",
-                  attachments=[buf1, buf2])
+    buf1 = open('lenna.jpeg', 'rb').read()
+    msg = Message("85934a68-f4f1-38e2-b6e8-cabd3c05bb52", "This is a picture", "2018-1-1", "John@outlook.com",
+                  attachments=[
+                      {
+                          "filename": 'lenna.jpg',
+                          'data': buf1
+                      }
+                  ])
     userDao.add_messages(msg)
 
     # John is blocked, so his msg will not be shown

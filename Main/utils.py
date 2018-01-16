@@ -25,7 +25,9 @@ def set_current_user(account):
 
 def make_user_dir(account):
     path = os.path.join(CURRENT_DIR, account)
+    attachment_path = os.path.join(path, 'FileRecv')
     os.mkdir(path)
+    os.mkdir(attachment_path)
     return os.path.abspath(path)
 
 

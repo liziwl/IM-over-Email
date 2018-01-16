@@ -10,7 +10,7 @@
  Target Server Version : 3012001
  File Encoding         : 65001
 
- Date: 12/01/2018 21:49:24
+ Date: 16/01/2018 13:44:32
 */
 
 PRAGMA foreign_keys = false;
@@ -22,8 +22,18 @@ DROP TABLE IF EXISTS "attachments";
 CREATE TABLE "attachments" (
   "message_id" integer,
   "id" integer PRIMARY KEY AUTOINCREMENT,
-  "content" blob,
-  CONSTRAINT "fk_msg_id" FOREIGN KEY ("message_id") REFERENCES "messages" ("id")
+  "data" blob,
+  "filename" text,
+  CONSTRAINT "fk_msg_id" FOREIGN KEY ("message_id") REFERENCES "messages" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+-- ----------------------------
+-- Table structure for black_list
+-- ----------------------------
+DROP TABLE IF EXISTS "black_list";
+CREATE TABLE "black_list" (
+  "account" text,
+  PRIMARY KEY ("account")
 );
 
 -- ----------------------------
@@ -35,7 +45,6 @@ CREATE TABLE "contacts" (
   "account" text,
   "public_key" text,
   "trusted" integer(1),
-  "is_blocked" integer(1) DEFAULT 0,
   PRIMARY KEY ("account")
 );
 
@@ -74,6 +83,5 @@ CREATE TABLE "messages" (
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_group_id" FOREIGN KEY ("group_") REFERENCES "groups" ("uuid")
 );
-
 
 PRAGMA foreign_keys = true;

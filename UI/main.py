@@ -7,6 +7,7 @@ from Email.MessageService import *
 from Main.dao.main_dao import MainDao
 from Main.utils import set_current_user, get_user_dir, make_user_dir, test_connection
 from Main.dao.user_dao import UserDao
+import uuid
 
 from Security.KeyService import KeyService
 import os.path
@@ -76,6 +77,7 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.mainDao.insert_user(new_user)
                 else:
                     # TODO: show alert window here
+                    print("Cannot establish connection!")
                     pass
                 # TODO add this user to contact table but not show
 

@@ -83,9 +83,13 @@ class MessageService(MessageServiceInterface):
             mail = self._decrypt_mail(mail)
             if mail is not None:
                 # if has attachment, the first 2 are keys
+                attachments = list()
                 if len(mail['attachments']) > 2:
                     attachments = [
-                        f['data'] for f in mail['attachments'][2:]
+                        {
+                            'filename': f['filename'],
+                            'data': f['data']
+                        } for f in mail['attachments'][2:]
                     ]
                 message = Message(mail['subject'],
                                   mail['text'][0]['text'], mail['date'], mail['from_email'], attachments)
@@ -116,14 +120,8 @@ class MessageService(MessageServiceInterface):
         content = message.content
         # uid = self._getuuid(accounts)
         uid = utils.get_uuid(accounts)
-        attachments = [
-            {
-                "filename": str(uuid.uuid4()),
-                "data": open(path, 'rb').read()
-            } for path in message.attachments
-        ]
         for receiver in accounts:
-            self._send_message_single(receiver, accounts, content, attachments, uid)
+            self._send_message_single(receiver, accounts, content, message.attachments, uid)
 
     def _decrypt_mail(self, mail):
         try:

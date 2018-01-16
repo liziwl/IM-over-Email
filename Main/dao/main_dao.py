@@ -22,7 +22,7 @@ class MainDao(object):
         # If main database not exists, create it with sql
         has_main_db = os.path.isfile(path)
         try:
-            self.conn = sqlite3.connect(path)
+            self.conn = sqlite3.connect(path, check_same_thread=False)
             if not has_main_db:
                 c = self.conn.cursor()
                 script_path = os.path.join(CURRENT_DIR, 'main.sql')

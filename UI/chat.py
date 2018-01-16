@@ -12,8 +12,7 @@ from Email.MessageService import *
 import sys
 import time
 from Main import utils
-from Main.dao import main_dao
-from Security.KeyService import KeyService
+import os
 
 
 class Ui_MainWindow(object):
@@ -156,7 +155,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.ban_fig.addPixmap(QtGui.QPixmap('resource\\ban.png').scaledToHeight(80, QtCore.Qt.SmoothTransformation),
                                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
-        self.attachments = list()
+        self.attachment_paths = list()
 
     def set_user(self):
         # TODO 单例模式
@@ -223,6 +222,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
             self.contacts_log[group_name].add_log(message[0].content, message[0].date, message[0].sender)
             self.userdao.add_messages(message[0])
+            # save attachments into user dir
+            # TODO: 修改get_current_user
+            user_attachments_dir = os.path.join(utils.get_user_dir(get_current_user().account), 'FileRecv')
+            for f in message[0].attachments:
+                path = os.path.join(user_attachments_dir, f['filename'])
+                data = f['data']
+                with open(path, 'wb') as buff:
+                    buff.write(data)
+
         print("show message")
         # refresh message if the user is in current group
         contact = self.map_ui.listWidget.currentItem().text()
@@ -363,8 +371,18 @@ class chatwin(QMainWindow, Ui_MainWindow):
         receivers = self.contacts_log[contact.text()].email
         print(receivers)
 
-        print(len(self.attachments))
-        message = Message(self.contacts_log[contact.text()].uid, text, dt, self.current_email, self.attachments)
+        attachments = list()
+        for path in self.attachment_paths:
+            filename = os.path.basename(path)
+            data = open(path, 'rb').read()
+            attachments.append(
+                {
+                    "filename": filename,
+                    "data": data
+                }
+            )
+
+        message = Message(self.contacts_log[contact.text()].uid, text, dt, self.current_email, attachments)
 
         print('send message: ', message.content)
         print('send to: ', receivers)
@@ -372,15 +390,15 @@ class chatwin(QMainWindow, Ui_MainWindow):
         # TODO 确定发送成功再添加至数据库 这里为了测试
         self.messgae_handler.send_message(receivers, message)
         # clear attachments after click 'send' button
-        self.attachments = []
+        self.attachment_paths = []
 
     def send_pic(self):
         pic_path = QFileDialog.getOpenFileName(self, 'Open Image', '~', "Image Files (*.png *.jpg *.bmp)")[0]
-        self.attachments.append(pic_path)
+        self.attachment_paths.append(pic_path)
 
     def send_file(self):
         file_path = QFileDialog.getOpenFileName(self, 'Open File', '~')[0]
-        self.attachments.append(file_path)
+        self.attachment_paths.append(file_path)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return and (event.modifiers() == QtCore.Qt.ControlModifier):
