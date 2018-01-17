@@ -62,7 +62,6 @@ class UserDao(object):
             )
             self.conn.commit()
 
-
     def is_account_blocked(self, account):
         c = self.conn.cursor()
         c.execute(
@@ -177,9 +176,10 @@ class UserDao(object):
         c.execute(
             "SELECT id, group_, content, date_, sender FROM messages "
             "INNER JOIN black_list "
-            "ON black_list.account <> messages.sender "
+            "ON black_list.account IS NULL "
+            "OR black_list.account <> messages.sender "
             "WHERE group_ = ? "
-            "ORDER BY date_"
+            "ORDER BY id"
             , [group_uuid]
         )
         msg_body = deepcopy(c.fetchall())
@@ -210,6 +210,8 @@ class UserDao(object):
             if attachments is None:
                 attachments = list()
             messages.append(Message(m[1], m[2], m[3], m[4], attachments=attachments))
+        # TODO sort by time
+
         return messages
 
 

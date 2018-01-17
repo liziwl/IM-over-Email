@@ -173,9 +173,9 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print(groups)
         for gp in groups:
             group = self.userdao.get_group(gp.group_uuid)
-
+            print(self.userdao.account)
             emails = group.members
-            print(emails)
+
             self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
             print(group.members)
             self.insert_contact(group.name)
@@ -255,7 +255,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.listWidget.setCurrentItem(new_user)
         # self.map_ui.textBrowser.clear()
 
-    # TODO　出现的菜单把自己强制勾选，因为新建一个群聊一定包含自己，将来发送消息的时候也会给自己发送邮件　收到外来群聊的时候可以保证统一性
+
     def creat_group(self):
         self.add_group.load_contact()
         if self.add_group.exec_():
