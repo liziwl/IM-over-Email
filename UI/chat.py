@@ -6,6 +6,7 @@ from Main.model.contact import Contact
 from UI.add_contact import *
 from UI.create_group import *
 from UI.chat_log import *
+from UI.show_group import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from Email.MessageService import *
@@ -36,6 +37,8 @@ class Ui_MainWindow(object):
         self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.listWidget.customContextMenuRequested.connect(MainWindow.right_click_menu)
         self.listWidget.itemClicked.connect(MainWindow.switch_contact)
+        self.listWidget.itemDoubleClicked.connect(MainWindow.detail_contact)
+        # TODO detail_contact未实现
         self.verticalLayout_2.addWidget(self.listWidget)
 
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -60,7 +63,7 @@ class Ui_MainWindow(object):
         self.right_verticalLayout.setObjectName("right_verticalLayout")
         self.friend_name_label = QtWidgets.QLabel(self.right_verticalLayoutWidget)
         self.friend_name_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.friend_name_label.setObjectName("friend_name_label")
+        self.friend_name_label.setObjectName("label")
         self.right_verticalLayout.addWidget(self.friend_name_label)
 
         self.textBrowser = QtWidgets.QTextBrowser(self.right_verticalLayoutWidget)
@@ -121,7 +124,7 @@ class Ui_MainWindow(object):
         self.group_chat_Button.setText("Creat group")
         self.group_chat_Button.setFont(font12)
 
-        # self.friend_name_label.setText("Friend name")
+        # self.label.setText("Friend name")
         self.friend_name_label.setFont(font16)
         self.textBrowser.setFont(font10)
         self.textEdit.setFont(font12)
@@ -140,6 +143,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.setupUi(self)
         self.add_win = add_contact_win()
         self.add_group = create_group_win()
+        self.detail_group = show_group_win()
         self.messgae_handler = None
 
         self.contacts_log = {}
@@ -345,6 +349,12 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.friend_name_label.setText(contact)
         print("switch contact", contact, self.contacts_log[contact].log_toString())
         self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
+
+    def detail_contact(self):
+        contact = self.map_ui.listWidget.currentItem().text()
+        print("detail contact", contact, self.contacts_log[contact].email)
+        self.detail_group.set_emails(self.contacts_log[contact].email)
+        self.detail_group.show()
 
     def show_text_in_textBrowser(self, text, dt):
         self.map_ui.textBrowser.append(dt)
