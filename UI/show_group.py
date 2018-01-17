@@ -42,7 +42,7 @@ class Ui_show_group_Dialog(object):
         font12.setPointSize(12)
 
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Create Group"))
+        Dialog.setWindowTitle(_translate("Dialog", "Show Group"))
         self.label.setText(_translate("Dialog", "Group Name"))
         self.label.setFont(font12)
 
