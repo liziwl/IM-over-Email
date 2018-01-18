@@ -63,6 +63,7 @@ class show_group_win(QtWidgets.QDialog, Ui_show_group_Dialog):
             self.set_user()
 
     def set_emails(self, group_name, emails):
+
         self.emails = emails
         self.show_win.label.setText(group_name)
         print(self.emails)
@@ -76,8 +77,11 @@ class show_group_win(QtWidgets.QDialog, Ui_show_group_Dialog):
         font12.setFamily("等线")
         font12.setPointSize(12)
 
+        # remove old information
+        self.show_win.listWidget.clear()
         for i in range(len(self.emails)):
             item = QListWidgetItem(self.emails[i])
+
             if self.userDao.is_account_blocked(self.emails[i]):
                 item.setIcon(self.ban_fig)
             self.show_win.listWidget.addItem(self.emails[i])
@@ -94,14 +98,17 @@ class show_group_win(QtWidgets.QDialog, Ui_show_group_Dialog):
             menu.exec_(pos)
 
     def block_contact(self, email):
-        # TODO userdao block
         print("block user", email)
+        self.userDao.block_account(email)
         self.show_win.listWidget.currentItem().setIcon(self.ban_fig)
 
+        # TODO update contact_log
+
     def unblock_contact(self, email):
-        # TODO userdao unblock
         print("unblock user", email)
+        self.userDao.unblock_account(email)
         self.show_win.listWidget.currentItem().setIcon(QIcon())
+        # TODO update contact_log
 
     def ok(self):
         self.accept()

@@ -182,8 +182,21 @@ class chatwin(QMainWindow, Ui_MainWindow):
             emails = group.members
 
             self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
-            print(group.members)
             self.insert_contact(group.name)
+            group_messages = self.userdao.get_group_messages(gp.group_uuid)
+            for message in group_messages:
+                print("add message ", message.content)
+                self.contacts_log[group.name].add_log(message.content, message.date, message.sender)
+
+    def get_contacts_log(self):
+        groups = self.userdao.get_groups()
+
+        for gp in groups:
+            group = self.userdao.get_group(gp.group_uuid)
+            print(self.userdao.account)
+            emails = group.members
+
+            self.contacts_log[group.name] = Chat_log(emails, Chat_log.GROUP, group.name, gp.group_uuid)
             group_messages = self.userdao.get_group_messages(gp.group_uuid)
             for message in group_messages:
                 print("add message ", message.content)
@@ -331,6 +344,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def switch_contact(self):
         contact = self.map_ui.listWidget.currentItem().text()
         self.map_ui.friend_name_label.setText(contact)
+        # TODO  update contacts_log(if blocked contact)
+        self.get_contacts_log()
         print("switch contact", contact, self.contacts_log[contact].log_toString())
         self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
 
@@ -344,7 +359,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def show_text_in_textBrowser(self, text, dt):
         self.map_ui.textBrowser.append(dt)
         self.map_ui.textBrowser.append(text)
-        pass
 
     # TODO 将自己发送的信息显示在右边 现在update_message方法一直没有被 message_service 调用 解决这个问题
     # 给当前对话的所有成员发送邮件（包括自己） 这样自己可以有可解读的未读邮件，可以在update_message的时候显示出来

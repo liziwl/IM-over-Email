@@ -77,6 +77,7 @@ class UserDao(object):
                 "INSERT INTO black_list(account) "
                 "VALUES (?)", [account]
             )
+            self.conn.commit()
 
     def unblock_account(self, account):
         c = self.conn.cursor()
@@ -84,6 +85,7 @@ class UserDao(object):
             "DELETE FROM black_list "
             "WHERE account=?", [account]
         )
+        self.conn.commit()
 
     def get_contacts(self):
         c = self.conn.cursor()
@@ -214,8 +216,7 @@ class UserDao(object):
 
 
 if __name__ == '__main__':
-    userDao = UserDao("pengym_111@163.com")
-
+    userDao = UserDao("gywang97@163.com")
     # add user
     userDao.add_contact(Contact("John", "John@outlook.com", "123456", True))
     userDao.add_contact(Contact("Jack", "Jack@outlook.com", "123456", True))
