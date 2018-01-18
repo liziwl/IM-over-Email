@@ -167,6 +167,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.userdao = UserDao(self.current_email)
         self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
         self.add_group.set_user()
+        self.detail_group.set_user()
         self.groups = self.userdao.get_groups()
         # self.self_check()
         self.init_contacts_log()
@@ -259,7 +260,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.map_ui.listWidget.setCurrentItem(new_user)
         # self.map_ui.textBrowser.clear()
 
-
     def creat_group(self):
         self.add_group.load_contact()
         if self.add_group.exec_():
@@ -337,7 +337,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def detail_contact(self):
         contact = self.map_ui.listWidget.currentItem().text()
         print("detail contact", contact, self.contacts_log[contact].email)
-        self.detail_group.set_emails(self.contacts_log[contact].email)
+        self.detail_group.set_emails(contact, self.contacts_log[contact].email)
+        self.detail_group.load_contact()
         self.detail_group.show()
 
     def show_text_in_textBrowser(self, text, dt):

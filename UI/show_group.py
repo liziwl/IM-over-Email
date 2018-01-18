@@ -62,13 +62,14 @@ class show_group_win(QtWidgets.QDialog, Ui_show_group_Dialog):
         if emails is not None:
             self.set_user()
 
-    def set_emails(self, emails):
+    def set_emails(self, group_name, emails):
         self.emails = emails
+        self.show_win.label.setText(group_name)
+        print(self.emails)
 
     def set_user(self):
         self.current_email = utils.get_current_user().account
         self.userDao = UserDao(self.current_email)
-        self.load_contact()
 
     def load_contact(self):
         font12 = QtGui.QFont()
