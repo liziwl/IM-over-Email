@@ -175,10 +175,8 @@ class UserDao(object):
         c = self.conn.cursor()
         c.execute(
             "SELECT id, group_, content, date_, sender FROM messages "
-            "INNER JOIN black_list "
-            "ON black_list.account IS NULL "
-            "OR black_list.account <> messages.sender "
             "WHERE group_ = ? "
+            "AND NOT exists(SELECT NULL FROM black_list WHERE account = sender) "
             "ORDER BY id"
             , [group_uuid]
         )
