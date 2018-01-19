@@ -44,46 +44,46 @@ PyQt5
 ## 测试邮箱提供  
 这些邮箱是设置好的，可以直接使用  
 本应用用 smtp password 登陆，直接登陆邮箱用login password登陆  
-可能有很多人同时使用这些邮箱测试，请确保按照说明进行 
-
-`user_config = {
-        "account": "gywang97@163.com",
-        "smtp password": "1207wang",
-        "login password": "wang1207"
-        "imap_server": "imap.163.com",
-        "imap_port": 993,
-        "smtp_server": "smtp.163.com",
-        "smtp_port": 25
-    }  `   
+可能有很多人同时使用这些邮箱测试，请确保按照说明进行  
+user_config = {  
+        "account": "gywang97@163.com",  
+        "smtp password": "1207wang",  
+        "login password": "wang1207",  
+        "imap_server": "imap.163.com",  
+        "imap_port": 993,  
+        "smtp_server": "smtp.163.com",  
+        "smtp_port": 25  
+    }  
     
-    `user_config = {
-        "account": "gywang97_2@163.com",
-        "smtp password": "1207wang",
-        "login password": "wang1207"
-        "imap_server": "imap.163.com",
-        "imap_port": 993,
-        "smtp_server": "smtp.163.com",
-        "smtp_port": 25
-    }  `   
+user_config = {  
+        "account": "gywang97_2@163.com",  
+        "smtp password": "1207wang",  
+        "login password": "wang1207",  
+        "imap_server": "imap.163.com",  
+        "imap_port": 993,  
+        "smtp_server": "smtp.163.com",  
+        "smtp_port": 25  
+    }   
     
-    `user_config = {
-        "account": "m13751098406_2@163.com",
-        "smtp password": "m1234567",
-        "login password": "m13751098406"
-        "imap_server": "imap.163.com",
-        "imap_port": 993,
-        "smtp_server": "smtp.163.com",
-        "smtp_port": 25
-    }  `   
-`user_config = {
-        "account": "pengym_111@163.com",
-        "smtp password": "hvwoTxJndBEi8B4G",
-        "login password":"zSuKvfnUuqr5pUj",
-        "imap_server": "imap.163.com",
-        "imap_port": 993,
-        "smtp_server": "smtp.163.com",
-        "smtp_port": 25
-    }`
+user_config = {  
+        "account": "m13751098406_2@163.com",  
+        "smtp password": "m1234567",  
+        "login password": "m13751098406"  
+        "imap_server": "imap.163.com",  
+        "imap_port": 993,  
+        "smtp_server": "smtp.163.com",  
+        "smtp_port": 25  
+    }  
+    
+user_config = {  
+        "account": "pengym_111@163.com",  
+        "smtp password": "hvwoTxJndBEi8B4G",  
+        "login password":"zSuKvfnUuqr5pUj",  
+        "imap_server": "imap.163.com",  
+        "imap_port": 993,  
+        "smtp_server": "smtp.163.com",  
+        "smtp_port": 25  
+   }  
 ## 联系我们：  
 有任何问题请发送至下面邮箱  
 11510050@mail.sustc.edu.cn  
