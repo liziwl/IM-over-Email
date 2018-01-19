@@ -224,8 +224,10 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
                 self.insert_contact(message[0].group)
 
-            self.contacts_log[group_name].add_log(message[0].content, message[0].date, message[0].sender)
+            # self.contacts_log[group_name].add_log(message[0].content, message[0].date, message[0].sender)
             self.userdao.add_messages(message[0])
+
+            self.get_contacts_log()
             # save attachments into user dir
 
             user_attachments_dir = os.path.join(utils.get_user_dir(self.current_email), 'FileRecv')
@@ -358,7 +360,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def show_text_in_textBrowser(self, text, dt):
         # TODO bug fix 有时候前面的消息显示异常
         self.map_ui.textBrowser.append(dt)
-        self.map_ui.textBrowser.append(text+'\n')
+        self.map_ui.textBrowser.append(text + '\n')
 
         # contact = self.map_ui.listWidget.currentItem().text()
         # self.map_ui.textBrowser.clear()
