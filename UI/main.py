@@ -93,8 +93,8 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
             # self.message_handler = MessageService(self.user_config)
             if not self.chat_win.isVisible():
                 # self.chat_win.set_message_handler(self.message_handler)
-
-                if self.mainDao.verify_user(account, pwd):
+                check_lock_password = utils.get_uuid([pwd])
+                if self.mainDao.verify_user(account, check_lock_password):
                     userDao = UserDao(account, self.is_new)
                     # inject userDao to source
                     self.source.userDao = userDao
