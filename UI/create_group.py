@@ -106,14 +106,17 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         if self.userDao.is_group_exists(uid):
             # TODO UI warning
             print("Group exist")
-            raise RuntimeError("group exist")
+            self.re_dat["name"] = self.cr_win.lineEdit.text()
+            #  已经存在
+            self.re_dat["group"] = None
+
         else:
             # show dialog
             self.userDao.add_group(group_name, tuple(group_member))
-        self.re_dat["name"] = self.cr_win.lineEdit.text()
-        self.re_dat["group"] = group_member
-        print(group_member)
-        self.accept()
+            self.re_dat["name"] = self.cr_win.lineEdit.text()
+            self.re_dat["group"] = group_member
+            print(group_member)
+            self.accept()
 
 
 if __name__ == '__main__':

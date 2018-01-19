@@ -163,12 +163,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.attachment_paths = list()
 
     def set_user(self):
-        # TODO 单例模式
-
-        # self.current_email = utils.get_current_user().account
-        # self.userdao = UserDao(self.current_email)
-        # self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
-
         self.source = MagicClass()
         self.userdao = self.source.userDao
         self.current_email = self.source.current_email
@@ -247,6 +241,8 @@ class chatwin(QMainWindow, Ui_MainWindow):
         if group_name == contact:
             self.show_text_in_textBrowser(message[0].content, message[0].sender + " " + message[0].date)
 
+            # refresh dialog
+
     def set_message_handler(self, handler):
         self.messgae_handler = handler
 
@@ -282,21 +278,16 @@ class chatwin(QMainWindow, Ui_MainWindow):
         # self.map_ui.textBrowser.clear()
 
     def creat_group(self):
-        try:
-            self.add_group.load_contact()
-            if self.add_group.exec_():
-                new_group = QListWidgetItem(self.add_group.re_dat["name"])
-                new_group.setIcon(self.group_fig)
-                self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"],
-                                                                            Chat_log.GROUP,
-                                                                            self.add_group.re_dat["name"])
 
-                #  check group exist
-
+        self.add_group.load_contact()
+        if self.add_group.exec_():
+            new_group = QListWidgetItem(self.add_group.re_dat["name"])
+            new_group.setIcon(self.group_fig)
+            self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"],
+                                                                        Chat_log.GROUP,
+                                                                        self.add_group.re_dat["name"])
+            if self.add_group.re_dat['group'] is not None:
                 self.insert_contact(self.add_group.re_dat["name"])
-        except RuntimeError:
-            print("group exist")
-            pass
 
     def get_contact_list(self):
         out = []
@@ -365,10 +356,14 @@ class chatwin(QMainWindow, Ui_MainWindow):
         self.detail_group.show()
 
     def show_text_in_textBrowser(self, text, dt):
+        # TODO bug fix 有时候前面的消息显示异常
         self.map_ui.textBrowser.append(dt)
         self.map_ui.textBrowser.append(text)
 
-    # TODO 将自己发送的信息显示在右边 现在update_message方法一直没有被 message_service 调用 解决这个问题
+        # contact = self.map_ui.listWidget.currentItem().text()
+        # self.map_ui.textBrowser.clear()
+        # self.map_ui.textBrowser.setText(self.contacts_log[contact].log_toString())
+
     # 给当前对话的所有成员发送邮件（包括自己） 这样自己可以有可解读的未读邮件，可以在update_message的时候显示出来
     def send_mess(self):
         text = self.map_ui.textEdit.toPlainText()
@@ -379,8 +374,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
         if contact is None:
             self.map_ui.listWidget.setCurrentRow(0)
             contact = self.map_ui.listWidget.currentItem()
-
-        # TODO 标记这条信息是自己发出的
 
         # self.contacts_log[contact.text()].add_log(text, dt)
         self.map_ui.textEdit.clear()
@@ -404,7 +397,6 @@ class chatwin(QMainWindow, Ui_MainWindow):
         print('send message: ', message.content)
         print('send to: ', receivers)
 
-        # TODO 确定发送成功再添加至数据库 这里为了测试
         self.messgae_handler.send_message(receivers, message)
         # clear attachments after click 'send' button
         self.attachment_paths = []
