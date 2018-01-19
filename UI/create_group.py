@@ -5,6 +5,7 @@ import sys
 from Main.dao.user_dao import UserDao
 from Main.utils import get_current_user
 from Main import utils
+from Main.singleton import MagicClass
 
 
 class Ui_create_group_Dialog(object):
@@ -52,19 +53,23 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         self.setWindowIcon(icon)
 
     def set_user(self):
-        self.current_email = utils.get_current_user().account
-        self.userDao = UserDao(self.current_email)
-        self.contacts = self.userDao.get_contacts()
-        self.load_contact()
+        source = MagicClass()
+
+        self.current_email = source.current_email
+        self.userDao = source.userDao
+
+        # self.load_contact()
 
     def load_contact(self):
+        contacts = self.userDao.get_contacts()
+        self.contacts = contacts
         font12 = QtGui.QFont()
         font12.setFamily("等线")
         font12.setPointSize(12)
 
         self.cr_win.tableWidget.setColumnCount(1)
-        self.cr_win.tableWidget.setRowCount(len(self.contacts))
-        for i in range(len(self.contacts)):
+        self.cr_win.tableWidget.setRowCount(len(contacts))
+        for i in range(len(contacts)):
             # 行表头
             item_head = QtWidgets.QTableWidgetItem()
             item_head.setFont(font12)
@@ -97,9 +102,17 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
             if item_data.checkState() == QtCore.Qt.Checked:
                 group_member.append(self.contacts[i].account)
 
-        self.userDao.add_group(group_name, tuple(group_member))
+        uid = utils.get_uuid(group_member)
+        if self.userDao.is_group_exists(uid):
+            # TODO UI warning
+            print("Group exist")
+            raise RuntimeError("group exist")
+        else:
+            # show dialog
+            self.userDao.add_group(group_name, tuple(group_member))
         self.re_dat["name"] = self.cr_win.lineEdit.text()
         self.re_dat["group"] = group_member
+        print(group_member)
         self.accept()
 
 

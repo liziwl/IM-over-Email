@@ -14,6 +14,7 @@ import sys
 import time
 from Main import utils
 import os
+from Main.singleton import MagicClass
 
 
 class Ui_MainWindow(object):
@@ -163,9 +164,16 @@ class chatwin(QMainWindow, Ui_MainWindow):
 
     def set_user(self):
         # TODO 单例模式
-        self.current_email = utils.get_current_user().account
-        self.userdao = UserDao(self.current_email)
-        self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
+
+        # self.current_email = utils.get_current_user().account
+        # self.userdao = UserDao(self.current_email)
+        # self.set_message_handler(MessageService(utils.get_current_user(), self, self.userdao))
+
+        self.source = MagicClass()
+        self.userdao = self.source.userDao
+        self.current_email = self.source.current_email
+        self.set_message_handler(self.source.messageService)
+
         self.add_group.set_user()
         self.detail_group.set_user()
         self.groups = self.userdao.get_groups()
@@ -274,21 +282,21 @@ class chatwin(QMainWindow, Ui_MainWindow):
         # self.map_ui.textBrowser.clear()
 
     def creat_group(self):
-        self.add_group.load_contact()
-        if self.add_group.exec_():
-            new_group = QListWidgetItem(self.add_group.re_dat["name"])
-            new_group.setIcon(self.group_fig)
-            self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"], Chat_log.GROUP,
-                                                                        self.add_group.re_dat["name"])
+        try:
+            self.add_group.load_contact()
+            if self.add_group.exec_():
+                new_group = QListWidgetItem(self.add_group.re_dat["name"])
+                new_group.setIcon(self.group_fig)
+                self.contacts_log[self.add_group.re_dat["name"]] = Chat_log(self.add_group.re_dat["group"],
+                                                                            Chat_log.GROUP,
+                                                                            self.add_group.re_dat["name"])
 
-            #  check group exist
-            uid = utils.get_uuid(self.add_group.re_dat["group"])
-            if self.userdao.is_group_exists(uid):
-                # TODO UI warning
-                print("Group exist")
-            else:
-                # show dialog
+                #  check group exist
+
                 self.insert_contact(self.add_group.re_dat["name"])
+        except RuntimeError:
+            print("group exist")
+            pass
 
     def get_contact_list(self):
         out = []

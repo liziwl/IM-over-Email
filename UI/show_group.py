@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 import sys
 
 from Main.dao.user_dao import UserDao
-from Main.utils import get_current_user
+from Main.singleton import MagicClass
 from Main import utils
 
 
@@ -69,8 +69,9 @@ class show_group_win(QtWidgets.QDialog, Ui_show_group_Dialog):
         print(self.emails)
 
     def set_user(self):
-        self.current_email = utils.get_current_user().account
-        self.userDao = UserDao(self.current_email)
+        source = MagicClass()
+        self.current_email = source.current_email
+        self.userDao = source.userDao
 
     def load_contact(self):
         font12 = QtGui.QFont()

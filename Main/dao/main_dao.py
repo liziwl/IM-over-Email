@@ -8,10 +8,12 @@ PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
 
 def singleton(cls, *args, **kw):
     instances = {}
+
     def _singleton():
         if cls not in instances:
             instances[cls] = cls(*args, **kw)
         return instances[cls]
+
     return _singleton
 
 
@@ -47,16 +49,17 @@ class MainDao(object):
         if not self.is_account_exists(user.account):
             c = self.conn.cursor()
             c.execute(
-                "INSERT INTO users(account, password, lock_password, "
+                "INSERT INTO users(account,  lock_password, "
                 "smtp_server, smtp_port, imap_server, imap_port) "
-                "VALUES(?, ?, ?, ?, ?, ?, ?);",
+                "VALUES(?, ?, ?, ?, ?, ?);",
                 [
-                    user.account, user.password, user.lock_password,
+                    user.account, user.lock_password,
                     user.smtp_server, user.smtp_port, user.imap_server, user.imap_port
                 ]
             )
             self.conn.commit()
 
+    # TODO delete password
     def get_user_info(self, account):
         c = self.conn.cursor()
         c.execute(

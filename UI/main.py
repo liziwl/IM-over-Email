@@ -3,11 +3,11 @@ from Main.model.user import User
 from UI.login import *
 from UI.chat import *
 from UI.config import *
-from Email.MessageService import *
 from Main.dao.main_dao import MainDao
 from Main.utils import set_current_user, get_user_dir, make_user_dir, test_connection
 from Main.dao.user_dao import UserDao
 import uuid
+from Main.singleton import MagicClass
 
 from Security.KeyService import KeyService
 import os.path
@@ -17,6 +17,7 @@ PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
 
 
 class Login_win(QtWidgets.QWidget, Ui_Login):
+
     def __init__(self):
         super(Login_win, self).__init__()
         self.setupUi(self)
@@ -26,7 +27,11 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
 
         self.user_config = {}
         self.message_handler = None
-        self.mainDao = MainDao()
+        # singleton
+        self.source = MagicClass()
+        self.source.mainDao = MainDao()
+        self.mainDao = self.source.mainDao
+        self.is_new = False
 
     def try_login(self):
         # 这里写授权登陆的函数
@@ -41,27 +46,30 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     return
                 else:
                     return
-            set_current_user(account)
+            # set_current_user(account)
+            self.source.current_email = account
+            self.current_email = account
+
             # 判断用户是否存在
             if not self.mainDao.is_account_exists(account):
+
                 self.user_config = self.conf.user_config
                 if not self.user_config:
                     self.try_setting()
                     return
                 self.user_config["account"] = account
                 self.user_config["password"] = pwd
-                # TODO: set lock password
-                self.user_config['lock_password'] = '123456'
+                self.is_new = True
                 # 生成用户目录
                 make_user_dir(account)
                 # 生成用户数据库
-                userDao = UserDao(account, new=True)
 
                 # 生成钥匙
-                KeyService.generate_keys(account, self.user_config['lock_password'])
+                KeyService.generate_keys(account, self.user_config['password'])
                 # 保存用户
                 # 找到lock_password的哈希值并保存，用于验证登陆
-                check_lock_password = str(uuid.uuid3(uuid.NAMESPACE_DNS, self.user_config['lock_password']))
+
+                check_lock_password = utils.get_uuid([self.user_config['password']])
                 new_user = User(
                     self.user_config['account'],
                     self.user_config['password'],
@@ -85,6 +93,15 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
             # self.message_handler = MessageService(self.user_config)
             if not self.chat_win.isVisible():
                 # self.chat_win.set_message_handler(self.message_handler)
+
+                userDao = UserDao(account, self.is_new)
+                # inject userDao to source
+                self.source.userDao = userDao
+                self.userDao = userDao
+
+                messageService = MessageService(self.mainDao.get_user_info(self.current_email), self.chat_win,
+                                                self.userDao, pwd)
+                self.source.messageService = messageService
                 self.chat_win.set_user()
                 self.chat_win.show()
                 self.close()

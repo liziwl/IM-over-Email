@@ -41,13 +41,13 @@ class MessageServiceInterface:
 
 class MessageService(MessageServiceInterface):
 
-    def __init__(self, user, listener, userdao):
+    def __init__(self, user, listener, userdao, pwd):
 
         self.user = user
         self.user_config = {
             "account": user.account,
             # mail password
-            "password": user.password,
+            "password": pwd,
             "imap_server": user.imap_server,
             "imap_port": user.imap_port,
             "smtp_server": user.smtp_server,
@@ -65,7 +65,7 @@ class MessageService(MessageServiceInterface):
 
     def load_privkey(self):
         # TODO self.privkey = KeyService.getPrivateKey(self.user.account,self.user.lock_password)　这里的锁屏密码用来加密私钥，锁屏密码现在默认都是123456 这个字端在UI端还无法设置，请完善 并且利用这个进行登陆验证
-        self.privkey = KeyService.getPrivateKey(self.user_config["account"], "123456")
+        self.privkey = KeyService.getPrivateKey(self.user_config["account"], self.user_config['password'])
 
     # 检查可以解密的未读消息，并且返回给chat
     def _listen_message(self):
