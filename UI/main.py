@@ -94,17 +94,22 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
             if not self.chat_win.isVisible():
                 # self.chat_win.set_message_handler(self.message_handler)
 
-                userDao = UserDao(account, self.is_new)
-                # inject userDao to source
-                self.source.userDao = userDao
-                self.userDao = userDao
+                if self.mainDao.verify_user(account, pwd):
+                    userDao = UserDao(account, self.is_new)
+                    # inject userDao to source
+                    self.source.userDao = userDao
+                    self.userDao = userDao
 
-                messageService = MessageService(self.mainDao.get_user_info(self.current_email), self.chat_win,
-                                                self.userDao, pwd)
-                self.source.messageService = messageService
-                self.chat_win.set_user()
-                self.chat_win.show()
-                self.close()
+                    messageService = MessageService(self.mainDao.get_user_info(self.current_email), self.chat_win,
+                                                    self.userDao, pwd)
+                    self.source.messageService = messageService
+                    self.chat_win.set_user()
+                    self.chat_win.show()
+                    self.close()
+                else:
+                    # TODO　UI　提示密码错误
+                    print('password error')
+                    pass
 
     def init_login(self):
         if not self.chat_win.isVisible():
