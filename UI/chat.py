@@ -358,7 +358,7 @@ class chatwin(QMainWindow, Ui_MainWindow):
     def show_text_in_textBrowser(self, text, dt):
         # TODO bug fix 有时候前面的消息显示异常
         self.map_ui.textBrowser.append(dt)
-        self.map_ui.textBrowser.append(text)
+        self.map_ui.textBrowser.append(text+'\n')
 
         # contact = self.map_ui.listWidget.currentItem().text()
         # self.map_ui.textBrowser.clear()

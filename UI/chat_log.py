@@ -26,7 +26,7 @@ class Chat_log(object):
     def log_toString(self):
         out = ""
         for it in self.log:
-            out += "{} {}\n{}\n".format(it.sender, it.time_stmp, it.content)
+            out += "{} {}\n{}\n\n".format(it.sender, it.time_stmp, it.content)
         return out[:-1]
 
 
