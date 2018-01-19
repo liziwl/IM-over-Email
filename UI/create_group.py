@@ -6,6 +6,7 @@ from Main.dao.user_dao import UserDao
 from Main.utils import get_current_user
 from Main import utils
 from Main.singleton import MagicClass
+from UI.alert_none import *
 
 
 class Ui_create_group_Dialog(object):
@@ -106,6 +107,10 @@ class create_group_win(QtWidgets.QDialog, Ui_create_group_Dialog):
         if self.userDao.is_group_exists(uid):
             # TODO UI warning
             print("Group exist")
+
+            alert = alert_win("Group exist")
+            alert.exec_()
+
             self.re_dat["name"] = self.cr_win.lineEdit.text()
             #  已经存在
             self.re_dat["group"] = None

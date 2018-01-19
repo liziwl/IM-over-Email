@@ -8,6 +8,7 @@ from Main.utils import set_current_user, get_user_dir, make_user_dir, test_conne
 from Main.dao.user_dao import UserDao
 import uuid
 from Main.singleton import MagicClass
+from UI.alert_none import *
 
 from Security.KeyService import KeyService
 import os.path
@@ -108,8 +109,11 @@ class Login_win(QtWidgets.QWidget, Ui_Login):
                     self.close()
                 else:
                     # TODO　UI　提示密码错误
+
+                    alert = alert_win("password error")
+                    alert.exec_()
                     print('password error')
-                    pass
+
 
     def init_login(self):
         if not self.chat_win.isVisible():
