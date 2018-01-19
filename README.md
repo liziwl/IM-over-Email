@@ -43,10 +43,13 @@ PyQt5
 >5. 点击ok返回，再次单机此对话，发现该用户的消息重新显示  
 ## 测试邮箱提供  
 这些邮箱是设置好的，可以直接使用  
+本应用用 smtp password 登陆，直接登陆邮箱用login password登陆  
+可能有很多人同时使用这两个邮箱测试，请确保按照说明进行 
 
 `user_config = {
         "account": "gywang97@163.com",
-        "password": "1207wang",
+        "smtp password": "1207wang",
+        "login password": "wang1207"
         "imap_server": "imap.163.com",
         "imap_port": 993,
         "smtp_server": "smtp.163.com",
@@ -55,7 +58,7 @@ PyQt5
     
 `user_config = {
         "account": "pengym_111@163.com",
-        "password": "hvwoTxJndBEi8B4G",
+        "smtp password": "hvwoTxJndBEi8B4G",
         "imap_server": "imap.163.com",
         "imap_port": 993,
         "smtp_server": "smtp.163.com",
