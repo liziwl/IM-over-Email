@@ -2,7 +2,7 @@
 IM over Email with encryption
 
 ## 项目详细报告
-[Finial report](https://raw.githubusercontent.com/liziwl/IM-over-Email/92642a213c91ada81de2d53dc27448629d19893e/Report/Final%20Report.pdf?token=AV72fipOFi3luuxpDgfApr97ZOXkb7lHks5aYtaRwA%3D%3D)
+[Finial report](./Report)
 
 ## 准备环境  
 * Python3
