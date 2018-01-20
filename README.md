@@ -90,6 +90,5 @@ user_config = {
 ## 联系我们：  
 有任何问题请发送至下面邮箱：
 
-[11510050@mail.sustc.edu.cn](11510050@mail.sustc.edu.cn)
-
-[11510035@mail.sustc.edu.cn](11510035@mail.sustc.edu.cn)
+* 11510050@mail.sustc.edu.cn
+* 11510035@mail.sustc.edu.cn
