@@ -1,5 +1,5 @@
-# IM-over-Emai
-IM over Email with encryption
+# IM over Email with encryption
+IM over Email with encryption, this Computer Network (CS305) Project
 
 ## 项目详细报告
 [Finial report](./Report)
