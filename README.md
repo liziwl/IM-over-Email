@@ -1,17 +1,20 @@
 # IM-over-Emai
 IM over Email with encryption
 
-## 教程地址
-* [Pyqt 翻译文档](https://maicss.gitbooks.io/pyqt5/content/)  
-## 准备环境  
-python3  
-rsa  
-cryptography  
-imapy  
-smtplib  
-PyQt5  
+## 项目详细报告
+[Finial report](https://raw.githubusercontent.com/liziwl/IM-over-Email/92642a213c91ada81de2d53dc27448629d19893e/Report/Final%20Report.pdf?token=AV72fipOFi3luuxpDgfApr97ZOXkb7lHks5aYtaRwA%3D%3D)
+
+## 准备环境  
+* Python3
+* rsa  
+* cryptography  
+* imapy  
+* smtplib  
+* PyQt5  
+
 ## 运行说明  
 运行UI下的main.py即可  
+
 ## 注意事项  
 登陆用户名是邮箱地址，密码是允许imapy登陆SMTP服务器的密码，比如163邮箱的授权码，不一定是邮箱客户端的登陆密码。新用户登陆时会生成新的公钥和私钥，以及这个用户的数据库。数据库，私钥（用登陆密码加密）存在本地，公钥上传到服务器，如果服务器上已经存在这个用户的公钥则会被顶替掉，所以要接受邮件一定要保证自己现在的私钥和服务器上的公钥匹配。  
 登陆已有用户，一开始不会显示记录，任意点击一个对话就可以显示出数据库中聊天记录  
@@ -86,5 +89,5 @@ user_config = {
    }  
 ## 联系我们：  
 有任何问题请发送至下面邮箱  
-11510050@mail.sustc.edu.cn  
+11510050@mail.sustc.edu.cn
 11510035@mail.sustc.edu.cn
