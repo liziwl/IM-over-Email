@@ -92,3 +92,4 @@ user_config = {
 
 * 11510050@mail.sustc.edu.cn
 * 11510035@mail.sustc.edu.cn
+* 11510352@mail.sustc.edu.cn
